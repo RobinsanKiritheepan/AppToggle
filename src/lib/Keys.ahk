@@ -26,6 +26,8 @@ class Keys {
             return []
         if hk = this.Copilot
             return [Tr("Touche Copilot")]
+        if StrLower(hk) = "+vkdf"
+            return ["§"]
         p := this.Split(hk), out := []
         for pair in [["#", "Win"], ["^", "Ctrl"], ["!", "Alt"], ["+", Tr("Maj")]]
             if InStr(p.mods, pair[1])
@@ -89,6 +91,8 @@ class Keys {
 
     ; Refuse les combinaisons qui empêcheraient de taper normalement. Renvoie "" si c'est bon.
     static Problem(hk) {
+        if StrLower(hk) = "+vkdf"
+            return ""
         p := this.Split(hk)
         alone := p.key ~= "i)^(F\d{1,2}|Pause|ScrollLock|AppsKey|PrintScreen|Insert|Media_\w+|Volume_\w+|Browser_\w+|Launch_\w+)$"
         if alone

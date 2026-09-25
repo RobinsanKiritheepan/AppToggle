@@ -35,6 +35,7 @@ class Lang {
         "Options", "Options",
         "Lancer avec Windows", "Start with Windows",
         "AppToggle démarre tout seul quand tu allumes le PC", "AppToggle starts automatically when you turn on your PC",
+        "Géré par Windows : Paramètres > Applications > Démarrage", "Managed by Windows: Settings > Apps > Startup",
         "Notification au démarrage", "Startup notification",
         "Un petit message confirme qu'AppToggle est prêt", "A short message confirms that AppToggle is ready",
         "Langue", "Language",

@@ -10,7 +10,7 @@ ListLines(false)
 ;@Ahk2Exe-SetName AppToggle
 ;@Ahk2Exe-SetProductName AppToggle
 ;@Ahk2Exe-SetDescription AppToggle - ouvre et réduit tes applis avec une touche
-;@Ahk2Exe-SetVersion 2.1.0
+;@Ahk2Exe-SetVersion 2.2.0
 ;@Ahk2Exe-SetCompanyName Kiritheepan Robinsan
 ;@Ahk2Exe-SetCopyright Copyright (c) 2026 Kiritheepan Robinsan - Licence MIT
 ;@Ahk2Exe-SetOrigFilename AppToggle.exe
@@ -32,10 +32,12 @@ ListLines(false)
 App.Main()
 
 class App {
-    static Version := "2.1.0"
+    static Version := "2.2.0"
     static RepoUrl := "https://github.com/RobinsanKiritheepan/AppToggle"
     static WM_SHOW := 0x8001        ; message privé : « affiche tes réglages »
     static mutex := 0
+    ; Version Microsoft Store : le dossier de l'appli est en lecture seule, les réglages vont dans AppData
+    static Packaged := false, Family := "", DataDir := A_ScriptDir
 
     static Main() {
         ; Sécurité : les DLL chargées ensuite viennent uniquement de System32, jamais du dossier de l'exe
@@ -58,7 +60,9 @@ class App {
         OnError(ObjBindMethod(this, "OnFail"))
         OnMessage(this.WM_SHOW, (*) => (UI.Later(() => Settings.Show()), 0))
         OnMessage(0x1A, ObjBindMethod(this, "OnSettingChange"))    ; WM_SETTINGCHANGE (thème changé)
+        OnMessage(0x6, ObjBindMethod(Settings, "OnActivate"))      ; WM_ACTIVATE
 
+        this.DetectPackage()
         Theme.Init()
         Hover.Init()
         Config.Load()
@@ -72,6 +76,18 @@ class App {
         } else
             Settings.Show()
         this.TrimMemory()
+    }
+
+    ; Installé depuis le Microsoft Store ? (l'appli a alors une « identité de paquet »)
+    static DetectPackage() {
+        len := 0
+        if DllCall("GetCurrentPackageFamilyName", "uint*", &len, "ptr", 0) != 122   ; 122 = tampon trop petit : il y a un paquet
+            return
+        buf := Buffer(len * 2)
+        DllCall("GetCurrentPackageFamilyName", "uint*", &len, "ptr", buf)
+        this.Packaged := true, this.Family := StrGet(buf, "UTF-16")
+        this.DataDir := A_AppData "\AppToggle"
+        DirCreate(this.DataDir)
     }
 
     static SetActive(on) {
@@ -119,7 +135,7 @@ class App {
     ; Erreur imprévue : on la note dans errors.log (à côté de l'exe) au lieu d'afficher une fenêtre technique
     static OnFail(err, mode) {
         try FileAppend(Format("[{}] {} {} (ligne {}, {})`r`n", FormatTime(, "yyyy-MM-dd HH:mm:ss"), err.Message, err.Extra, err.Line, err.What)
-            , A_ScriptDir "\errors.log", "UTF-8")
+            , this.DataDir "\errors.log", "UTF-8")
         try Tray.Notify(Tr("AppToggle a rencontré un problème"), Tr("Les détails sont dans errors.log, à côté de l'application."), "Iconx")
         return 1
     }

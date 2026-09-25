@@ -1,5 +1,7 @@
 ﻿# Génère les icônes d'AppToggle (assets\icon.ico = actif, assets\icon-off.ico = en pause)
 # et assets\logo.png pour le README. À relancer seulement si on change le design.
+# Avec -StoreImages <dossier> : génère à la place les images du paquet Microsoft Store (utilisé par build-store.ps1).
+param([string]$StoreImages = '')
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 $assets = Join-Path (Split-Path $PSScriptRoot) 'assets'
@@ -113,6 +115,37 @@ function Write-Ico([string]$path, [bool]$on) {
     }
     foreach ($img in $images) { $w.Write($img) }
     $w.Close()
+}
+
+# --- Images du paquet Microsoft Store : icône à plusieurs échelles d'écran (scale-XXX) et tailles
+#     de barre des tâches (targetsize-XX), tuiles avec le logo centré sur fond transparent ---
+if ($StoreImages) {
+    New-Item -ItemType Directory -Force $StoreImages | Out-Null
+    function Save-Png([System.Drawing.Bitmap]$bmp, [string]$name) {
+        $bmp.Save((Join-Path $StoreImages $name), [System.Drawing.Imaging.ImageFormat]::Png)
+        $bmp.Dispose()
+    }
+    function New-Tile([int]$w, [int]$h, [int]$size) {
+        $tile = New-Object System.Drawing.Bitmap $w, $h, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+        $g = [System.Drawing.Graphics]::FromImage($tile)
+        $g.Clear([System.Drawing.Color]::Transparent)
+        $icon = New-IconBitmap $size $true
+        $g.DrawImage($icon, [int](($w - $size) / 2), [int](($h - $size) / 2), $size, $size)
+        $icon.Dispose(); $g.Dispose()
+        return $tile
+    }
+    foreach ($sc in 100, 125, 150, 200, 400) {
+        $f = $sc / 100
+        Save-Png (New-IconBitmap ([int][Math]::Round(44 * $f)) $true) "Square44x44Logo.scale-$sc.png"
+        Save-Png (New-IconBitmap ([int][Math]::Round(50 * $f)) $true) "StoreLogo.scale-$sc.png"
+        Save-Png (New-Tile ([int][Math]::Round(150 * $f)) ([int][Math]::Round(150 * $f)) ([int][Math]::Round(96 * $f))) "Square150x150Logo.scale-$sc.png"
+        Save-Png (New-Tile ([int][Math]::Round(310 * $f)) ([int][Math]::Round(150 * $f)) ([int][Math]::Round(96 * $f))) "Wide310x150Logo.scale-$sc.png"
+    }
+    foreach ($ts in 16, 20, 24, 30, 32, 36, 40, 48, 60, 64, 72, 80, 96, 256) {
+        Save-Png (New-IconBitmap $ts $true) "Square44x44Logo.targetsize-$ts.png"
+        Save-Png (New-IconBitmap $ts $true) "Square44x44Logo.targetsize-${ts}_altform-unplated.png"
+    }
+    return
 }
 
 Write-Ico (Join-Path $assets 'icon.ico') $true

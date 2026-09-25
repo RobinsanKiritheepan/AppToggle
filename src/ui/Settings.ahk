@@ -69,7 +69,8 @@ class Settings {
 
         ; --- options ---
         UI.Text(g, Tr("Options"), M + 2, ySec2, 200, 28, T.text, T.bg, 10, 600)
-        this.AddOption(g, yOpt, "startup", Tr("Lancer avec Windows"), Tr("AppToggle démarre tout seul quand tu allumes le PC")
+        this.AddOption(g, yOpt, "startup", Tr("Lancer avec Windows")
+            , App.Packaged ? Tr("Géré par Windows : Paramètres > Applications > Démarrage") : Tr("AppToggle démarre tout seul quand tu allumes le PC")
             , () => Startup.IsOn(), (v) => (Startup.Set(v), Tray.Update()))
         this.AddOption(g, yOpt + hOptRow, "notify", Tr("Notification au démarrage"), Tr("Un petit message confirme qu'AppToggle est prêt")
             , () => Config.notify, (v) => (Config.notify := v, Config.Save()))
@@ -191,6 +192,12 @@ class Settings {
         }
         for key in ["master", "startup", "notify"]
             UI.RedrawSwitch(this.ctl[key])
+    }
+
+    ; Quand la fenêtre revient au premier plan (ex. retour des paramètres Windows), on remet l'affichage à jour
+    static OnActivate(wParam, lParam, msg, hwnd) {
+        if this.gui && hwnd = this.gui.Hwnd && (wParam & 0xFFFF)
+            UI.Later(() => this.Refresh())
     }
 
     static SetEnabled(e, v) {

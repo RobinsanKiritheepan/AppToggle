@@ -26,7 +26,7 @@ class Engine {
                 continue
             }
             try {
-                Hotkey(e.key, ObjBindMethod(this, "Toggle", e), "On")
+                Hotkey(e.key, ObjBindMethod(this, "Handle", e), "On")
                 this.bound[e.key] := e
             } catch
                 e.error := Tr("Touche non reconnue par Windows")
@@ -39,11 +39,23 @@ class Engine {
         this.Apply()
     }
 
+    static Handle(e, *) {
+        try this.Toggle(e)
+        finally KeyWait(Keys.Split(e.key).key)
+    }
+
     static Toggle(e, *) {
+        if e.behavior = "command" {
+            if !e.launchedAt || A_TickCount - e.launchedAt > 250 {
+                e.launchedAt := A_TickCount
+                this.Launch(e)
+            }
+            return
+        }
         hwnd := this.FindWindow(e)
         if !hwnd {
             ; évite de lancer l'appli deux fois si on appuie pendant qu'elle démarre
-            if A_TickCount - e.launchedAt > 4000 {
+            if !e.launchedAt || A_TickCount - e.launchedAt > 4000 {
                 e.launchedAt := A_TickCount
                 this.Launch(e)
             }
@@ -63,7 +75,7 @@ class Engine {
         fg := DllCall("GetForegroundWindow", "ptr")
         if fg = hwnd
             return true
-        try return fg && WinGetProcessName(fg) = e.process
+        try return fg && DllCall("GetAncestor", "ptr", fg, "uint", 3, "ptr") = hwnd
         return false
     }
 
@@ -72,8 +84,11 @@ class Engine {
             if e.type = "store"
                 Run("shell:AppsFolder\" e.target)
             else {
-                SplitPath(e.target, , &dir)
-                Run('"' e.target '"', dir)
+                target := e.target
+                if !RegExMatch(target, "i)^(?:[A-Z]:[\\/]|\\\\)")
+                    target := A_ScriptDir "\" target
+                SplitPath(target, , &dir)
+                Run('"' target '"' (e.args != "" ? " " e.args : ""), e.workdir != "" ? e.workdir : dir)
             }
         } catch
             Tray.Notify(Tr("Impossible d'ouvrir « {1} »", e.name), Tr("Vérifie cette appli dans les réglages d'AppToggle."), "Iconx")
@@ -81,8 +96,12 @@ class Engine {
 
     ; La fenêtre principale de l'appli (la plus haute à l'écran), ou 0 si elle n'est pas ouverte
     static FindWindow(e) {
-        if e.hwnd && WinExist(e.hwnd) && this.IsMainWindow(e.hwnd)
-            return e.hwnd
+        try {
+            if e.hwnd && WinExist(e.hwnd) && this.IsMainWindow(e.hwnd)
+                && WinGetProcessName(e.hwnd) = e.process
+                && (e.title = "" || InStr(WinGetTitle(e.hwnd), e.title))
+                return e.hwnd
+        }
         e.hwnd := 0
         try list := WinGetList("ahk_exe " e.process)
         catch

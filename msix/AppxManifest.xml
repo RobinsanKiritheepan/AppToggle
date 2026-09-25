@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Manifeste du paquet Microsoft Store. build-store.ps1 remplace les {{...}} par l'identité du Partner Center
+     (msix\identity.json) et par la version lue dans src\AppToggle.ahk. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap10 desktop rescap">
+
+  <Identity Name="{{IdentityName}}" Publisher="{{Publisher}}" Version="{{Version}}" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>AppToggle</DisplayName>
+    <PublisherDisplayName>{{PublisherDisplayName}}</PublisherDisplayName>
+    <Logo>images\StoreLogo.png</Logo>
+    <Description>Open, bring back or minimize any app with a single key.</Description>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26200.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="fr-FR" />
+    <Resource Language="en-US" />
+  </Resources>
+
+  <Applications>
+    <Application Id="AppToggle" Executable="AppToggle.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="AppToggle"
+        Description="Open, bring back or minimize any app with a single key."
+        BackgroundColor="transparent"
+        Square150x150Logo="images\Square150x150Logo.png"
+        Square44x44Logo="images\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="images\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- « Lancer avec Windows » : désactivé par défaut, l'utilisateur l'active dans Paramètres > Applications > Démarrage.
+             /startup : AppToggle démarre discrètement, sans ouvrir sa fenêtre. -->
+        <desktop:Extension Category="windows.startupTask" Executable="AppToggle.exe" EntryPoint="Windows.FullTrustApplication" uap10:Parameters="/startup">
+          <desktop:StartupTask TaskId="AppToggleStartup" Enabled="false" DisplayName="AppToggle" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Nécessaire pour une appli de bureau classique (raccourcis clavier globaux, gestion des fenêtres) -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

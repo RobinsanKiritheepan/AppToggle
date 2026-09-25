@@ -147,6 +147,7 @@ class Editor {
         d := this.draft
         d.name := item.name, d.type := item.type, d.target := item.target, d.process := item.process
         d.title := "", d.hwnd := 0, this.msg := ""
+        d.args := "", d.workdir := "", d.behavior := "toggle"
         UI.Later(() => this.Rebuild())
     }
 
@@ -159,6 +160,7 @@ class Editor {
         d := this.draft
         d.type := "exe", d.target := path, d.process := file, d.title := "", d.hwnd := 0
         d.name := Picker.ExeName(path), this.msg := ""
+        d.args := "", d.workdir := "", d.behavior := "toggle"
         UI.Later(() => this.Rebuild())
     }
 
@@ -203,7 +205,7 @@ class Editor {
             if d.name = ""
                 d.name := RegExReplace(d.process, "i)\.exe$")
             if this.orig {
-                for prop in ["name", "key", "type", "target", "process", "title"]
+                for prop in ["name", "key", "type", "target", "process", "title", "args", "workdir", "behavior"]
                     this.orig.%prop% := d.%prop%
                 this.orig.hwnd := 0
             } else {

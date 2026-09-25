@@ -61,9 +61,24 @@ class Startup {
     static Target => A_IsCompiled ? A_ScriptFullPath : A_AhkPath
     static Args => A_IsCompiled ? "/startup" : '"' A_ScriptFullPath '" /startup'
 
-    static IsOn() => FileExist(this.Link) != ""
+    ; Version Microsoft Store : tâche de démarrage déclarée dans le paquet, que Windows active ou non.
+    ; Son état est rangé par Windows dans le registre (2 = activée, 4 = activée par une stratégie).
+    static TaskId := "AppToggleStartup"
+
+    static IsOn() {
+        if App.Packaged {
+            st := RegRead("HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\"
+                . App.Family "\" this.TaskId, "State", 0)
+            return st = 2 || st = 4
+        }
+        return FileExist(this.Link) != ""
+    }
 
     static Set(on) {
+        if App.Packaged {
+            Run("ms-settings:startupapps")          ; c'est l'utilisateur qui l'active dans Paramètres > Applications > Démarrage
+            return
+        }
         try {
             if on
                 FileCreateShortcut(this.Target, this.Link, A_ScriptDir, this.Args, Tr("AppToggle : ouvre et réduit tes applis avec une touche")
@@ -77,7 +92,7 @@ class Startup {
     ; Si l'exe a été déplacé, le raccourci de démarrage est remis à jour.
     ; S'il pointe vers une autre copie d'AppToggle qui existe toujours, on n'y touche pas.
     static Repair() {
-        if !this.IsOn()
+        if App.Packaged || !this.IsOn()
             return
         try {
             FileGetShortcut(this.Link, &target, , &args)

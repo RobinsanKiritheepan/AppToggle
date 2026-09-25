@@ -19,6 +19,14 @@ $ahkVersion = '2.0.26'
 $ahkZipSha = '43522AA3122A57784AC5DB30ABF85C2244475C36ACD7796E2C993355F9E926AE'   # AutoHotkey_2.0.26.zip
 $ahkExeSha = 'A2A54B8ABC476D7671D4DE0771BB54BF5F2373D79FF6871D0BA6A62C3B88AE00'   # AutoHotkey64.exe qu'il contient
 
+# Supprime un dossier, en réessayant si Windows (indexation, antivirus) tient encore un fichier ouvert
+function Remove-Folder([string]$path) {
+    for ($i = 0; $i -lt 10 -and (Test-Path $path); $i++) {
+        try { Remove-Item $path -Recurse -Force -ErrorAction Stop } catch { Start-Sleep -Milliseconds 500 }
+    }
+    if (Test-Path $path) { throw "Impossible de supprimer $path : un fichier est peut-être ouvert." }
+}
+
 $version = [regex]::Match([IO.File]::ReadAllText((Join-Path $src 'AppToggle.ahk')), 'static Version := "([\d.]+)"').Groups[1].Value
 if (-not $version) { throw 'Version introuvable dans src\AppToggle.ahk' }
 New-Item -ItemType Directory -Force $dist | Out-Null
@@ -53,10 +61,7 @@ if ($running) {
 
 # 3. Assemblage du dossier (config.ini et errors.log éventuels sont conservés)
 New-Item -ItemType Directory -Force $app | Out-Null
-foreach ($sub in 'lib', 'ui', 'assets') {
-    $p = Join-Path $app $sub
-    if (Test-Path $p) { [IO.Directory]::Delete($p, $true) }
-}
+foreach ($sub in 'lib', 'ui', 'assets') { Remove-Folder (Join-Path $app $sub) }
 Copy-Item $ahkExe $appExe -Force
 Copy-Item (Join-Path $src 'AppToggle.ahk') $app -Force
 Copy-Item (Join-Path $src 'lib') (Join-Path $app 'lib') -Recurse
@@ -73,12 +78,12 @@ if ($p.ExitCode -ne 0) { throw 'Erreur dans les scripts (voir ci-dessus) : paque
 # 5. Zip à partager (sans réglages personnels), empreintes, et code source d'AutoHotkey (licence GPL)
 $zipOut = Join-Path $dist "AppToggle-$version.zip"
 $tmp = Join-Path $env:TEMP 'AppToggle-paquet'
-if (Test-Path $tmp) { [IO.Directory]::Delete($tmp, $true) }
+Remove-Folder $tmp
 New-Item -ItemType Directory $tmp | Out-Null
 Copy-Item $app $tmp -Recurse
 Get-ChildItem (Join-Path $tmp 'AppToggle') -File | Where-Object { $_.Name -in 'config.ini', 'errors.log', 'erreurs.log' } | ForEach-Object { $_.Delete() }
 Compress-Archive -Path (Join-Path $tmp 'AppToggle') -DestinationPath $zipOut -Force
-[IO.Directory]::Delete($tmp, $true)
+Remove-Folder $tmp
 @(
     "$((Get-FileHash $zipOut -Algorithm SHA256).Hash)  AppToggle-$version.zip"
     "$ahkExeSha  AppToggle.exe (official AutoHotkey $ahkVersion, unmodified)"

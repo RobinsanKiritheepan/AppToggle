@@ -3,6 +3,7 @@
 
 class Entry {
     name := "", key := "", type := "exe", target := "", process := "", title := "", enabled := true
+    args := "", workdir := "", behavior := "toggle"
     hwnd := 0, launchedAt := 0, error := ""
 
     ; Ce qui identifie l'appli pour Windows : un id du Store ou le chemin d'un .exe
@@ -15,6 +16,7 @@ class Config {
     static entries := [], active := true, notify := true, hintShown := false, lang := "auto"
 
     static Load() {
+        this.path := App.DataDir "\config.ini"
         this.entries := []
         if !FileExist(this.path)
             return this.Save()
@@ -36,6 +38,9 @@ class Config {
             e.target := RegExReplace(IniRead(this.path, sec, "Cible", ""), "i)^shell:AppsFolder\\")
             e.process := IniRead(this.path, sec, "Processus", "")
             e.title := IniRead(this.path, sec, "Titre", "")
+            e.args := IniRead(this.path, sec, "Arguments", "")
+            e.workdir := IniRead(this.path, sec, "Dossier", "")
+            e.behavior := IniRead(this.path, sec, "Comportement", "toggle") = "command" ? "command" : "toggle"
             e.enabled := IniRead(this.path, sec, "Actif", 1) = 1
             if e.target != "" && e.process != "" {
                 if e.name = ""
@@ -52,12 +57,15 @@ class Config {
         for i, e in this.entries {
             t .= "`r`n[Raccourci" i "]`r`nNom=" e.name "`r`nTouche=" e.key "`r`nType=" e.type
             t .= "`r`nCible=" e.target "`r`nProcessus=" e.process "`r`nTitre=" e.title
+            t .= "`r`nArguments=" e.args "`r`nDossier=" e.workdir "`r`nComportement=" e.behavior
             t .= "`r`nActif=" (e.enabled ? 1 : 0) "`r`n"
         }
         try {
-            f := FileOpen(this.path, "w", "UTF-16")
+            temp := this.path ".tmp"
+            f := FileOpen(temp, "w", "UTF-16")
             f.Write(t)
             f.Close()
+            FileMove(temp, this.path, 1)
         } catch {
             Tray.Notify(Tr("Impossible d'enregistrer les réglages"), Tr("Le dossier d'AppToggle est peut-être en lecture seule."), "Iconx")
         }
