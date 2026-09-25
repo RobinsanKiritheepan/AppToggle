@@ -5,8 +5,8 @@ Guide pas à pas pour le Partner Center, avec les textes de la fiche prêts à c
 ## 1. Compte et nom (une seule fois)
 
 1. Aller sur <https://storedeveloper.microsoft.com>, se connecter avec son compte Microsoft, choisir le compte **individuel** (gratuit) et faire la vérification d'identité.
-2. Dans le Partner Center : **Apps and games** → **New product** → **MSIX or PWA app** → réserver le nom **AppToggle**.
-3. **Product management** → **Product identity** : recopier les 3 valeurs dans `msix\identity.json` :
+2. Dans le Partner Center : **Applications et jeux** → **Nouveau produit** → **Application MSIX ou PWA** (surtout pas « EXE ou MSI », qui demande de signer soi-même) → réserver le nom **AppToggle**.
+3. **Gestion des produits** → **Identité du produit** : recopier les 3 valeurs dans `msix\identity.json` (elles ne sont pas secrètes : elles sont écrites dans chaque paquet publié) :
 
 ```json
 {
@@ -18,32 +18,38 @@ Guide pas à pas pour le Partner Center, avec les textes de la fiche prêts à c
 
 4. Fabriquer le paquet : `powershell -ExecutionPolicy Bypass -File build-store.ps1` → `dist\store\AppToggle-x.y.z.msix`.
 
-## 2. La soumission (Start your submission)
+## 2. La soumission (Démarrer la soumission)
 
-### Pricing and availability
-- **Markets** : tous.
-- **Visibility** : pour un premier test, **Private audience** avec l'adresse de ton compte Microsoft et celle de ton ami ; ensuite **Public audience**.
-- **Pricing** : **Free**.
+Ce qui a été fait pour la première version (25 septembre 2026). L'interface est en français, les noms anglais sont entre parenthèses.
 
-### Properties
-- **Category** : Utilities & tools.
-- **Privacy policy URL** : `https://github.com/RobinsanKiritheepan/AppToggle/blob/main/PRIVACY.md`
-- **Website** : `https://github.com/RobinsanKiritheepan/AppToggle`
-- **Support contact info** : `https://github.com/RobinsanKiritheepan/AppToggle/issues`
+### Tarification et disponibilité (Pricing and availability)
+- **Marchés** : tous les marchés internationaux.
+- **Visibilité** : **Public non privé**, « disponible et détectable dans le Microsoft Store ». Une nouvelle appli n'est presque pas trouvée tant qu'on ne partage pas son lien. Pour tester avant tout le monde, choisir plutôt **Public privé** avec les adresses des comptes Microsoft des testeurs.
+- **Planifier** : sortie dès que possible.
+- **Prix de base** : EUR – France, **0** (gratuit).
 
-### Age ratings
-Remplir le questionnaire : catégorie utilitaire, aucune violence, aucun contenu généré ou partagé par les utilisateurs, pas d'achat, pas de localisation. Résultat attendu : 3+ / PEGI 3.
+### Propriétés (Properties)
+- **Catégorie** : Utilitaires + outils, sans sous-catégorie ; catégorie secondaire : Productivité.
+- **Politique de confidentialité** : « Oui, mon produit utilise des informations personnelles » (à cause du crochet clavier), avec l'URL `https://github.com/RobinsanKiritheepan/AppToggle/blob/main/PRIVACY.md`
+- **Site Web** : `https://github.com/RobinsanKiritheepan/AppToggle`
+- **Infos de contact du support technique** : `https://github.com/RobinsanKiritheepan/AppToggle/issues`. Pas de téléphone ni d'adresse : ces champs sont affichés publiquement.
+- **Configuration requise** : Clavier, en matériel minimum. Laisser décochées les déclarations « IA générative » et « testé pour l'accessibilité ».
+
+### Évaluation de l'âge (Age ratings)
+Questionnaire IARC : **Tous les autres types d'applications**, puis **Non** à toutes les questions. Résultat : 3+ (PEGI 3, ESRB Tout le monde). Cliquer sur **Continuer** sur la page de résumé.
 
 ### Packages
-Déposer `dist\store\AppToggle-x.y.z.msix`. Le Partner Center demande de justifier la capacité **runFullTrust** : coller le texte de la partie « Notes for certification » ci-dessous.
+Déposer `dist\store\AppToggle-x.y.z.msix`, famille **Windows 10/11 Desktop** seulement. L'avertissement jaune sur **runFullTrust** est normal : la justification se donne dans les options de soumission.
 
-### Store listings
-Ajouter deux langues : **Français (France)** et **English (United States)**. Captures : `docs\store\fr-*.png` pour le français, `docs\store\en-*.png` pour l'anglais (dans l'ordre 1 à 4).
+### Descriptions dans le Store (Store listings)
+Les langues **Français (France)** et **Anglais (États-Unis)** apparaissent toutes seules (ce sont celles du paquet). Pour chacune : les textes des parties 3 ou 4, et les captures `docs\store\fr-*.png` ou `docs\store\en-*.png` (partie **Bureau**, dans l'ordre 1 à 4). Les mots clés se valident un par un avec Entrée. Logos, bandes-annonces et images Xbox : facultatifs, laissés vides.
 
-### Submission options → Notes for certification
-Coller le texte anglais de la partie « Notes for certification ».
+### Options de soumission (Submission options)
+- Publication : dès que la soumission passe la certification.
+- **Fonctionnalités restreintes** : coller le texte « runFullTrust » de la partie 5 (champ limité à **500 caractères**).
+- Le texte « How to test… » va dans **Infos supplémentaires → Informations supplémentaires sur les tests**.
 
-Puis **Submit to the Store**. La certification prend en général de quelques heures à 3 jours ouvrés.
+Puis **Soumettre pour certification**. Sur la liste de la soumission, « Tarification et disponibilité » et « Classification par âge » n'affichent jamais « Terminé », même complètes : ce n'est pas bloquant. La certification prend de quelques heures à 3 jours ouvrés.
 
 ## 3. Textes de la fiche — Français
 
@@ -78,11 +84,11 @@ raccourci clavier · basculer fenêtre · lanceur d'appli · réduire fenêtre �
 
 **Copyright and trademark info**
 
-> © 2026 Kiritheepan Robinsan
+> © 2026 Kiritheepan Robinsan. Contient AutoHotkey (licence GNU GPL v2). Copilot est une marque du groupe Microsoft.
 
 **Additional license terms**
 
-> AppToggle est distribué sous licence MIT : https://github.com/RobinsanKiritheepan/AppToggle/blob/main/LICENSE — Il contient l'interpréteur AutoHotkey v2, sous licence GNU GPL v2 ; code source : https://github.com/AutoHotkey/AutoHotkey/tree/v2.0.26
+> AppToggle est distribué sous licence MIT : https://github.com/RobinsanKiritheepan/AppToggle/blob/main/LICENSE — Il contient l'interpréteur AutoHotkey v2, sous licence GNU GPL v2 ; son code source est joint au paquet (AutoHotkey-v2.0.26-source.zip) et disponible ici : https://github.com/AutoHotkey/AutoHotkey/tree/v2.0.26
 
 ## 4. Store listing texts — English
 
@@ -117,18 +123,20 @@ keyboard shortcut · toggle window · app launcher · minimize window · product
 
 **Copyright and trademark info**
 
-> © 2026 Kiritheepan Robinsan
+> © 2026 Kiritheepan Robinsan. Includes AutoHotkey (GNU GPL v2 license). Copilot is a trademark of the Microsoft group of companies.
 
 **Additional license terms**
 
-> AppToggle is released under the MIT license: https://github.com/RobinsanKiritheepan/AppToggle/blob/main/LICENSE — It includes the AutoHotkey v2 interpreter, licensed under the GNU GPL v2; source code: https://github.com/AutoHotkey/AutoHotkey/tree/v2.0.26
+> AppToggle is released under the MIT license: https://github.com/RobinsanKiritheepan/AppToggle/blob/main/LICENSE — It includes the AutoHotkey v2 interpreter, licensed under the GNU GPL v2; its source code is included in the package (AutoHotkey-v2.0.26-source.zip) and available at: https://github.com/AutoHotkey/AutoHotkey/tree/v2.0.26
 
 ## 5. Notes for certification
 
-> AppToggle is a small desktop utility that opens, brings to the front or minimizes an app with a global keyboard shortcut.
->
-> runFullTrust is required because AppToggle is a classic Win32 desktop app (built with AutoHotkey) that registers global hotkeys and manages the windows of other apps. For some shortcuts (such as the Copilot key) it uses a low-level keyboard hook, only to detect the shortcuts chosen by the user: no keystroke is recorded, stored or transmitted. The app makes no network connection and collects no data (privacy policy: https://github.com/RobinsanKiritheepan/AppToggle/blob/main/PRIVACY.md).
->
-> How to test: launch AppToggle; the settings window opens. Open Notepad, then in AppToggle click "Add", "Pick an open app" and select Notepad. Click "Change", press Ctrl+Alt+N, then "Save". Pressing Ctrl+Alt+N now minimizes Notepad, and pressing it again brings it back.
+**runFullTrust** (champ limité à 500 caractères, celui-ci en fait 416) :
+
+> AppToggle is a Win32 desktop utility (built with AutoHotkey) that opens, brings to the front or minimizes an app with a global keyboard shortcut. runFullTrust is needed to register global hotkeys and manage the windows of other apps. A low-level keyboard hook is used only to detect the shortcuts chosen by the user: no keystroke is recorded, stored or sent. The app makes no network connection and collects no data.
+
+**Informations supplémentaires sur les tests** (471 caractères) :
+
+> How to test: launch AppToggle; the settings window opens. Open Notepad, then in AppToggle click "Add", "Pick an open app" and select Notepad. Click "Change", press Ctrl+Alt+N, then "Save". Pressing Ctrl+Alt+N now brings Notepad to the front, pressing it again minimizes it, and pressing it once more brings it back.
 >
 > The startup task is disabled by default; users can turn it on in Settings > Apps > Startup (the "Start with Windows" option in AppToggle opens that page).

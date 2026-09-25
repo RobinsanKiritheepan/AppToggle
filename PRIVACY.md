@@ -4,7 +4,7 @@
 
 ## Français
 
-*Dernière mise à jour : 26 septembre 2026*
+*Dernière mise à jour : 25 septembre 2026*
 
 AppToggle ne collecte, ne stocke et ne transmet **aucune donnée personnelle**.
 
@@ -20,7 +20,7 @@ Question ou problème : [ouvrir une issue sur GitHub](https://github.com/Robinsa
 
 ## English
 
-*Last updated: September 26, 2026*
+*Last updated: September 25, 2026*
 
 AppToggle does not collect, store or transmit **any personal data**.
 

@@ -19,25 +19,31 @@ Open, bring back or minimize any app with a single key, for example the Copilot 
 - **English and French**: follows the Windows language, or pick one in the options.
 - **Follows the Windows theme** (dark or light) and accent color.
 - **Lightweight**: a folder of about 1.4 MB, less than 2 MB of active memory in the background, no CPU usage until you press a key.
-- **Portable and offline**: settings are saved in `config.ini`, next to the executable. Nothing in the registry, no data collection, no internet connection.
+- **Offline**: settings are saved in `config.ini`, next to the executable in the zip version, in the Windows `AppData` folder in the Store version. Nothing in the registry, no data collection, no internet connection.
 
 ## Installation
+
+### Microsoft Store (recommended)
+
+**[AppToggle on the Microsoft Store](https://apps.microsoft.com/detail/9NN6L7PJ0DFC)**: *currently being reviewed by Microsoft, the link will work as soon as it's published.*
+
+It's the easiest version: signed by Microsoft, it installs in one click, updates itself and isn't blocked by Windows 11 Smart App Control. To start it with your PC, AppToggle's **Start with Windows** option opens **Settings > Apps > Startup**, where you just turn AppToggle on.
+
+### Portable version (zip)
 
 1. Download `AppToggle-x.y.z.zip` from the [latest release](https://github.com/RobinsanKiritheepan/AppToggle/releases/latest).
 2. Extract the zip: it contains an `AppToggle` folder. Put it in a folder of your own where it will stay (for example `Documents`), not in Downloads.
 3. Open the folder and double-click `AppToggle.exe`: the settings window opens. Keep all the files of the folder together.
 
-### Smart App Control (Windows 11): known limitation
+#### Smart App Control (Windows 11)
 
-If this security setting is on, Windows blocks AppToggle with the message "Smart App Control blocked an app that may be unsafe". It isn't malware: Windows blocks any program it doesn't know that isn't digitally signed by a verified publisher. AppToggle isn't signed yet; a signed version is planned.
-
-In the meantime, it's better not to turn off this protection just for AppToggle. If all you want is to open an app with the Copilot key, Windows 11 can do it without installing anything: **Settings > Personalization > Text input**, Copilot key option, then **Custom** and pick the app (it must come from the Microsoft Store, like Claude or ChatGPT). The app opens, but doesn't minimize when you press the key again.
+If this security setting is on, Windows blocks the zip version with the message "Smart App Control blocked an app that may be unsafe". It isn't malware: Windows blocks any program it doesn't know that isn't digitally signed by a verified publisher, which is the case of the zip version. **Solution: install the Microsoft Store version**, signed by Microsoft. It's better not to turn off this protection just for AppToggle.
 
 If Windows only shows "Windows protected your PC" (SmartScreen), click **More info**, then **Run anyway**.
 
-### Why `AppToggle.exe` is AutoHotkey
+#### Why `AppToggle.exe` is AutoHotkey
 
-`AppToggle.exe` is the official [AutoHotkey v2](https://www.autohotkey.com) interpreter, **unmodified**, just renamed: it automatically runs `AppToggle.ahk`, which sits next to it. As a result, AppToggle shows up as "AutoHotkey" in Task Manager and in the file properties. The SHA-256 hash published with each release lets you check that it's the official interpreter, and everything else is readable code (`.ahk`).
+In the zip version, `AppToggle.exe` is the official [AutoHotkey v2](https://www.autohotkey.com) interpreter, **unmodified**, just renamed: it automatically runs `AppToggle.ahk`, which sits next to it. As a result, AppToggle shows up as "AutoHotkey" in Task Manager and in the file properties. The SHA-256 hash published with each release lets you check that it's the official interpreter, and everything else is readable code (`.ahk`).
 
 ## How to use
 
@@ -59,13 +65,23 @@ So you can still type normally, a combination must include Ctrl, Alt or Win (exc
 
 AppToggle never connects to the internet, collects no data and doesn't need administrator rights. To recognize some keys (including the Copilot key) it uses a Windows keyboard hook, but it never records or sends keystrokes. All the details, good practices and how to report a vulnerability are in [SECURITY.md](SECURITY.md).
 
-## Building the shareable version
+## Building the shareable versions
+
+### Zip version
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File build.ps1
 ```
 
 The script downloads the official AutoHotkey release once into `tools\` (no administrator rights needed) and checks its SHA-256 hash. It then assembles `dist\AppToggle\` (the renamed interpreter, the scripts, the icons and the licenses) and checks the syntax. Finally, it prepares the release files: the zip, the SHA-256 hashes and the matching AutoHotkey source code. There is nothing to compile. To run it straight from the code with [AutoHotkey v2](https://www.autohotkey.com) installed, just double-click `src\AppToggle.ahk`.
+
+### Microsoft Store package
+
+```powershell
+powershell -ExecutionPolicy Bypass -File build-store.ps1
+```
+
+The script compiles `AppToggle.exe` with Ahk2Exe (pinned versions and SHA-256 hashes, packaging tools checked for their Microsoft signature), generates the Store images and builds `dist\store\AppToggle-x.y.z.msix`, including AutoHotkey's license and source code. The publisher identity comes from `msix\identity.json` (public values given by Partner Center); without this file, it builds a test package. Microsoft signs the package when it's published. The publishing guide and the listing texts are in [docs/STORE.md](docs/STORE.md) (in French).
 
 ## Project structure
 
@@ -81,7 +97,10 @@ The script downloads the official AutoHotkey release once into `tools\` (no admi
 | `src/lib/Draw.ahk` | GDI+ drawing: cards, switches, buttons, keycaps |
 | `src/ui/` | The windows: settings, add or edit a shortcut, pick an app |
 | `tools/make-icons.ps1` | Generates the icons in `assets` |
-| `build.ps1` | Assembles the shareable version and release files |
+| `build.ps1` | Assembles the zip version and release files |
+| `build-store.ps1` | Builds the Microsoft Store package (`.msix`) |
+| `msix/` | Store package manifest and publisher identity |
+| `docs/STORE.md` | Microsoft Store publishing guide (in French) |
 
 ## `config.ini` format
 
@@ -111,5 +130,5 @@ Actif=1
 ## Licenses and notices
 
 - **AppToggle's code** (scripts, icons, documentation) is released under the MIT license: see [LICENSE](LICENSE).
-- **`AppToggle.exe`** is the official, unmodified [AutoHotkey v2](https://github.com/AutoHotkey/AutoHotkey) interpreter, released under the GNU GPL v2 (it includes the PCRE library, under a BSD license). Each release provides its license (`LICENCE-AutoHotkey.txt`, in the folder) and the matching AutoHotkey source code.
+- **AutoHotkey**: in the zip version, `AppToggle.exe` is the official, unmodified [AutoHotkey v2](https://github.com/AutoHotkey/AutoHotkey) interpreter; in the Microsoft Store version, it's compiled with Ahk2Exe and contains that same interpreter. AutoHotkey is released under the GNU GPL v2 (it includes the PCRE library, under a BSD license): each release and the Store package provide its license (`LICENCE-AutoHotkey.txt`) and its source code for the version used.
 - Windows and Copilot are trademarks of Microsoft; Claude is a trademark of Anthropic; ChatGPT and Codex are trademarks of OpenAI. AppToggle is an independent project, not affiliated with or endorsed by these companies. Screenshots use demo apps.

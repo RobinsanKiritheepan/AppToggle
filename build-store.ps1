@@ -56,6 +56,15 @@ $ahkDir = Join-Path $tools "AutoHotkey-$ahkVersion"
 if (-not (Test-Path "$ahkDir\AutoHotkey64.exe")) { Write-Host "Téléchargement d'AutoHotkey $ahkVersion..."; Get-VerifiedZip $ahkZip $ahkDir }
 Assert-Sha "$ahkDir\AutoHotkey64.exe" $ahkExeSha
 
+# Son code source (licence GPL) : joint au paquet, puisque l'exe compilé contient AutoHotkey
+$ahkSource = Join-Path $root "dist\AutoHotkey-v$ahkVersion-source.zip"
+if (-not (Test-Path $ahkSource)) {
+    Write-Host "Téléchargement du code source d'AutoHotkey $ahkVersion..."
+    New-Item -ItemType Directory -Force (Split-Path $ahkSource) | Out-Null
+    Invoke-WebRequest "https://github.com/AutoHotkey/AutoHotkey/archive/refs/tags/v$ahkVersion.zip" -OutFile "$ahkSource.part" -UseBasicParsing
+    Move-Item "$ahkSource.part" $ahkSource
+}
+
 # 2. Compilateur Ahk2Exe
 $a2eDir = Join-Path $tools 'Ahk2Exe'
 if (-not (Test-Path "$a2eDir\Ahk2Exe.exe")) { Write-Host 'Téléchargement du compilateur Ahk2Exe...'; Get-VerifiedZip $a2eZip $a2eDir }
@@ -121,7 +130,9 @@ $cfg.resources.SelectNodes('packaging') | ForEach-Object { [void]$cfg.resources.
 $cfg.Save("$work\priconfig.xml")
 & $makepri new /pr $layout /cf "$work\priconfig.xml" /of "$layout\resources.pri" /mn "$layout\AppxManifest.xml" /o | Out-Null
 if ($LASTEXITCODE) { throw 'makepri new a échoué.' }
-$msix = Join-Path $out "AppToggle-$version$(if ($isTest) { '-TEST' }).msix"
+# Ajouté après makepri : ce zip n'est pas une ressource de l'appli (et ses points dans le nom gêneraient makepri)
+Copy-Item $ahkSource (Join-Path $layout (Split-Path $ahkSource -Leaf))
+$msix =Join-Path $out "AppToggle-$version$(if ($isTest) { '-TEST' }).msix"
 $log = & $makeappx.FullName pack /d $layout /p $msix /o 2>&1
 if ($LASTEXITCODE) { $log | Write-Host; throw 'makeappx pack a échoué (voir le message ci-dessus).' }
 Remove-Folder $work
