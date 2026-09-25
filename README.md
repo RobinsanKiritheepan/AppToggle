@@ -27,11 +27,17 @@ Ouvre, ramène ou réduit une application avec une seule touche, par exemple la 
 2. Extraire le zip : il contient un dossier `AppToggle`. Le ranger dans un dossier à toi où il restera (par exemple `Documents`), pas dans Téléchargements.
 3. Ouvrir le dossier et double-cliquer sur `AppToggle.exe` : la fenêtre de réglages s'ouvre. Garde tous les fichiers du dossier ensemble.
 
+### Contrôle intelligent des applications (Windows 11) : limite connue
+
+Si ce réglage de sécurité est activé sur le PC, Windows bloque AppToggle avec le message « Le Contrôle intelligent des applications a bloqué une application potentiellement dangereuse ». Ce n'est pas un virus : Windows bloque tout programme qu'il ne connaît pas et qui n'est pas signé numériquement par un éditeur vérifié. AppToggle n'est pas encore signé ; une version signée est prévue.
+
+En attendant, mieux vaut ne pas désactiver cette protection juste pour AppToggle. Si le but est seulement d'ouvrir une appli avec la touche Copilot, Windows 11 sait le faire sans rien installer : **Paramètres > Personnalisation > Saisie de texte**, option de la touche Copilot, puis **Personnalisé** et choisir l'appli (elle doit venir du Microsoft Store, comme Claude ou ChatGPT). L'appli s'ouvre, mais ne se réduit pas quand on rappuie.
+
+Si Windows affiche seulement « Windows a protégé votre ordinateur » (SmartScreen), cliquer sur **Informations complémentaires**, puis sur **Exécuter quand même**.
+
 ### Pourquoi `AppToggle.exe` est AutoHotkey
 
-`AppToggle.exe` est l'interpréteur officiel [AutoHotkey v2](https://www.autohotkey.com), **non modifié**, simplement renommé : il lance tout seul `AppToggle.ahk`, placé à côté de lui. Ce choix permet de fonctionner avec le **Contrôle intelligent des applications** de Windows 11, qui bloque les exécutables non signés qu'il ne connaît pas, alors qu'il reconnaît l'interpréteur officiel. Conséquence : dans le Gestionnaire des tâches et les propriétés du fichier, AppToggle apparaît sous le nom « AutoHotkey ».
-
-L'empreinte SHA-256 publiée avec chaque release permet de vérifier que `AppToggle.exe` est bien l'interpréteur officiel, et tout le reste est du code lisible (`.ahk`). Si Windows affiche malgré tout « Windows a protégé votre ordinateur », cliquer sur **Informations complémentaires**, puis sur **Exécuter quand même**.
+`AppToggle.exe` est l'interpréteur officiel [AutoHotkey v2](https://www.autohotkey.com), **non modifié**, simplement renommé : il lance tout seul `AppToggle.ahk`, placé à côté de lui. Dans le Gestionnaire des tâches et les propriétés du fichier, AppToggle apparaît donc sous le nom « AutoHotkey ». L'empreinte SHA-256 publiée avec chaque release permet de vérifier que c'est bien l'interpréteur officiel, et tout le reste est du code lisible (`.ahk`).
 
 ## Utilisation
 

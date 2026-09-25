@@ -23,7 +23,9 @@ Merci de **ne pas** publier une faille dans une issue publique. Utilise l'onglet
 
 ## Construction de la version à partager
 
-`build.ps1` télécharge la version officielle d'AutoHotkey depuis GitHub, vérifie l'empreinte SHA-256 du zip et de l'interpréteur avant de s'en servir, et publie avec chaque release le code source d'AutoHotkey correspondant (licence GPL v2). Aucun exécutable n'est compilé ni modifié : c'est ce qui permet à AppToggle de passer le Contrôle intelligent des applications de Windows 11, qui bloque les exécutables non signés inconnus.
+`build.ps1` télécharge la version officielle d'AutoHotkey depuis GitHub, vérifie l'empreinte SHA-256 du zip et de l'interpréteur avant de s'en servir, et publie avec chaque release le code source d'AutoHotkey correspondant (licence GPL v2). Aucun exécutable n'est compilé ni modifié.
+
+AppToggle n'est pas encore signé numériquement : sur les PC où le Contrôle intelligent des applications de Windows 11 est activé, il est bloqué. Une version signée est prévue.
 
 ---
 
@@ -48,4 +50,6 @@ Please **do not** open a public issue. Use the repository's **Security** tab, th
 
 ## Building the shareable version
 
-`build.ps1` downloads the official AutoHotkey release from GitHub, checks the SHA-256 hash of both the zip and the interpreter before using them, and each release ships the matching AutoHotkey source code (GPL v2 license). No executable is compiled or modified: that's what lets AppToggle pass Windows 11 Smart App Control, which blocks unknown unsigned executables.
+`build.ps1` downloads the official AutoHotkey release from GitHub, checks the SHA-256 hash of both the zip and the interpreter before using them, and each release ships the matching AutoHotkey source code (GPL v2 license). No executable is compiled or modified.
+
+AppToggle isn't digitally signed yet: on PCs where Windows 11 Smart App Control is on, it gets blocked. A signed version is planned.

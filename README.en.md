@@ -27,11 +27,17 @@ Open, bring back or minimize any app with a single key, for example the Copilot 
 2. Extract the zip: it contains an `AppToggle` folder. Put it in a folder of your own where it will stay (for example `Documents`), not in Downloads.
 3. Open the folder and double-click `AppToggle.exe`: the settings window opens. Keep all the files of the folder together.
 
+### Smart App Control (Windows 11): known limitation
+
+If this security setting is on, Windows blocks AppToggle with the message "Smart App Control blocked an app that may be unsafe". It isn't malware: Windows blocks any program it doesn't know that isn't digitally signed by a verified publisher. AppToggle isn't signed yet; a signed version is planned.
+
+In the meantime, it's better not to turn off this protection just for AppToggle. If all you want is to open an app with the Copilot key, Windows 11 can do it without installing anything: **Settings > Personalization > Text input**, Copilot key option, then **Custom** and pick the app (it must come from the Microsoft Store, like Claude or ChatGPT). The app opens, but doesn't minimize when you press the key again.
+
+If Windows only shows "Windows protected your PC" (SmartScreen), click **More info**, then **Run anyway**.
+
 ### Why `AppToggle.exe` is AutoHotkey
 
-`AppToggle.exe` is the official [AutoHotkey v2](https://www.autohotkey.com) interpreter, **unmodified**, just renamed: it automatically runs `AppToggle.ahk`, which sits next to it. This lets AppToggle work with Windows 11 **Smart App Control**, which blocks unsigned executables it doesn't know but recognizes the official interpreter. As a result, AppToggle shows up as "AutoHotkey" in Task Manager and in the file properties.
-
-The SHA-256 hash published with each release lets you check that `AppToggle.exe` is the official interpreter, and everything else is readable code (`.ahk`). If Windows still shows "Windows protected your PC", click **More info**, then **Run anyway**.
+`AppToggle.exe` is the official [AutoHotkey v2](https://www.autohotkey.com) interpreter, **unmodified**, just renamed: it automatically runs `AppToggle.ahk`, which sits next to it. As a result, AppToggle shows up as "AutoHotkey" in Task Manager and in the file properties. The SHA-256 hash published with each release lets you check that it's the official interpreter, and everything else is readable code (`.ahk`).
 
 ## How to use
 
