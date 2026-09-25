@@ -22,7 +22,7 @@ Ouvre, ramène ou réduit une application avec une seule touche, par exemple la 
 
 ## Installation
 
-1. Télécharger `AppToggle-x.y.z.zip` depuis la page [Releases](../../releases).
+1. Télécharger `AppToggle-x.y.z.zip` depuis la [dernière version publiée](https://github.com/RobinsanKiritheepan/AppToggle/releases/latest).
 2. Extraire le contenu dans un dossier où il restera (par exemple `Documents\AppToggle`), pas dans Téléchargements.
 3. Double-cliquer sur `AppToggle.exe` : la fenêtre de réglages s'ouvre.
 
