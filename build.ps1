@@ -81,7 +81,7 @@ Compress-Archive -Path (Join-Path $tmp 'AppToggle') -DestinationPath $zipOut -Fo
 [IO.Directory]::Delete($tmp, $true)
 @(
     "$((Get-FileHash $zipOut -Algorithm SHA256).Hash)  AppToggle-$version.zip"
-    "$ahkExeSha  AppToggle.exe (AutoHotkey $ahkVersion officiel, non modifié)"
+    "$ahkExeSha  AppToggle.exe (official AutoHotkey $ahkVersion, unmodified)"
 ) | Set-Content (Join-Path $dist 'SHA256.txt') -Encoding ASCII
 $ahkSource = Join-Path $dist "AutoHotkey-v$ahkVersion-source.zip"
 if (-not (Test-Path $ahkSource)) {
