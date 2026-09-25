@@ -18,20 +18,20 @@ Open, bring back or minimize any app with a single key, for example the Copilot 
 - **Visible status**: a colored icon near the clock when AppToggle is on, gray when it's paused.
 - **English and French**: follows the Windows language, or pick one in the options.
 - **Follows the Windows theme** (dark or light) and accent color.
-- **Lightweight**: a single executable of about 1.4 MB, less than 2 MB of active memory in the background, no CPU usage until you press a key.
+- **Lightweight**: a folder of about 1.4 MB, less than 2 MB of active memory in the background, no CPU usage until you press a key.
 - **Portable and offline**: settings are saved in `config.ini`, next to the executable. Nothing in the registry, no data collection, no internet connection.
 
 ## Installation
 
 1. Download `AppToggle-x.y.z.zip` from the [latest release](https://github.com/RobinsanKiritheepan/AppToggle/releases/latest).
-2. Extract it into a folder of your own where it will stay (for example `Documents\AppToggle`), not in Downloads.
-3. Double-click `AppToggle.exe`: the settings window opens.
+2. Extract the zip: it contains an `AppToggle` folder. Put it in a folder of your own where it will stay (for example `Documents`), not in Downloads.
+3. Open the folder and double-click `AppToggle.exe`: the settings window opens. Keep all the files of the folder together.
 
-### Windows warning on first launch
+### Why `AppToggle.exe` is AutoHotkey
 
-The executable isn't signed with a paid certificate, so Windows SmartScreen may show "Windows protected your PC": click **More info**, then **Run anyway**.
+`AppToggle.exe` is the official [AutoHotkey v2](https://www.autohotkey.com) interpreter, **unmodified**, just renamed: it automatically runs `AppToggle.ahk`, which sits next to it. This lets AppToggle work with Windows 11 **Smart App Control**, which blocks unsigned executables it doesn't know but recognizes the official interpreter. As a result, AppToggle shows up as "AutoHotkey" in Task Manager and in the file properties.
 
-The full source code is in this repository, and the SHA-256 hash of each version is published with its release so you can check the file hasn't been modified. Some antivirus tools occasionally flag programs compiled with AutoHotkey by mistake (false positives).
+The SHA-256 hash published with each release lets you check that `AppToggle.exe` is the official interpreter, and everything else is readable code (`.ahk`). If Windows still shows "Windows protected your PC", click **More info**, then **Run anyway**.
 
 ## How to use
 
@@ -53,15 +53,13 @@ So you can still type normally, a combination must include Ctrl, Alt or Win (exc
 
 AppToggle never connects to the internet, collects no data and doesn't need administrator rights. To recognize some keys (including the Copilot key) it uses a Windows keyboard hook, but it never records or sends keystrokes. All the details, good practices and how to report a vulnerability are in [SECURITY.md](SECURITY.md).
 
-## Building from source
-
-Requirement: [AutoHotkey v2](https://www.autohotkey.com) installed.
+## Building the shareable version
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File build.ps1
 ```
 
-The script downloads the official Ahk2Exe compiler once into `tools\Ahk2Exe` (no administrator rights needed) and checks its hash. It then compiles `src\AppToggle.ahk` into `dist\AppToggle.exe`, and prepares the release files in `dist`: the zip to publish, its SHA-256 hash and the matching AutoHotkey source code. To try it without compiling, just double-click `src\AppToggle.ahk`.
+The script downloads the official AutoHotkey release once into `tools\` (no administrator rights needed) and checks its SHA-256 hash. It then assembles `dist\AppToggle\` (the renamed interpreter, the scripts, the icons and the licenses) and checks the syntax. Finally, it prepares the release files: the zip, the SHA-256 hashes and the matching AutoHotkey source code. There is nothing to compile. To run it straight from the code with [AutoHotkey v2](https://www.autohotkey.com) installed, just double-click `src\AppToggle.ahk`.
 
 ## Project structure
 
@@ -77,7 +75,7 @@ The script downloads the official Ahk2Exe compiler once into `tools\Ahk2Exe` (no
 | `src/lib/Draw.ahk` | GDI+ drawing: cards, switches, buttons, keycaps |
 | `src/ui/` | The windows: settings, add or edit a shortcut, pick an app |
 | `tools/make-icons.ps1` | Generates the icons in `assets` |
-| `build.ps1` | Build and release files |
+| `build.ps1` | Assembles the shareable version and release files |
 
 ## `config.ini` format
 
@@ -107,5 +105,5 @@ Actif=1
 ## Licenses and notices
 
 - **AppToggle's code** (scripts, icons, documentation) is released under the MIT license: see [LICENSE](LICENSE).
-- **The published executable** contains the [AutoHotkey v2](https://github.com/AutoHotkey/AutoHotkey) interpreter, released under the GNU GPL v2, which includes the PCRE library under a BSD license. `AppToggle.exe` is therefore distributed in compliance with the GPL v2: each release provides AutoHotkey's license (`LICENCE-AutoHotkey.txt`) and the matching AutoHotkey source code.
+- **`AppToggle.exe`** is the official, unmodified [AutoHotkey v2](https://github.com/AutoHotkey/AutoHotkey) interpreter, released under the GNU GPL v2 (it includes the PCRE library, under a BSD license). Each release provides its license (`LICENCE-AutoHotkey.txt`, in the folder) and the matching AutoHotkey source code.
 - Windows and Copilot are trademarks of Microsoft; Claude is a trademark of Anthropic; ChatGPT and Codex are trademarks of OpenAI. AppToggle is an independent project, not affiliated with or endorsed by these companies. Screenshots use demo apps.

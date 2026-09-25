@@ -127,9 +127,12 @@ class App {
     static Icon(size) {
         try return A_IsCompiled
             ? LoadPicture(A_ScriptFullPath, "Icon1 w" size " h" size, &t)
-            : LoadPicture(A_ScriptDir "\..\assets\icon.ico", "w" size " h" size, &t)
+            : LoadPicture(this.Asset("icon.ico"), "w" size " h" size, &t)
         return 0
     }
+
+    ; Icônes : dans assets\ à côté du script (version à partager) ou dans ..\assets (code source)
+    static Asset(name) => FileExist(A_ScriptDir "\assets\" name) ? A_ScriptDir "\assets\" name : A_ScriptDir "\..\assets\" name
 
     ; Rend la mémoire inutilisée à Windows (AppToggle reste à quelques Mo en arrière-plan)
     static TrimMemory() => DllCall("psapi\EmptyWorkingSet", "ptr", DllCall("GetCurrentProcess", "ptr"))

@@ -22,7 +22,7 @@ class Tray {
         if A_IsCompiled
             TraySetIcon(A_ScriptFullPath, on ? -159 : -250)     ; icônes intégrées à l'exe (voir AppToggle.ahk)
         else
-            TraySetIcon(A_ScriptDir "\..\assets\" (on ? "icon.ico" : "icon-off.ico"))
+            TraySetIcon(App.Asset(on ? "icon.ico" : "icon-off.ico"))
         n := 0
         for e in Config.entries
             n += e.enabled && e.error = ""
@@ -66,7 +66,8 @@ class Startup {
     static Set(on) {
         try {
             if on
-                FileCreateShortcut(this.Target, this.Link, A_ScriptDir, this.Args, Tr("AppToggle : ouvre et réduit tes applis avec une touche"))
+                FileCreateShortcut(this.Target, this.Link, A_ScriptDir, this.Args, Tr("AppToggle : ouvre et réduit tes applis avec une touche")
+                    , A_IsCompiled ? "" : App.Asset("icon.ico"))
             else if this.IsOn()
                 FileDelete(this.Link)
         } catch

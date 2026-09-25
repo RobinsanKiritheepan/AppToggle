@@ -1,6 +1,6 @@
 # Compilation
 dist/
-tools/Ahk2Exe/
+tools/AutoHotkey-*/
 
 # Fichiers créés par AppToggle à l'exécution
 config.ini

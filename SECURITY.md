@@ -19,11 +19,11 @@ Merci de **ne pas** publier une faille dans une issue publique. Utilise l'onglet
 
 - Télécharge AppToggle **uniquement** depuis la page [Releases](https://github.com/RobinsanKiritheepan/AppToggle/releases) de ce dépôt, et vérifie l'empreinte SHA-256 publiée avec chaque version.
 - Range `AppToggle.exe` dans un **dossier à toi** (par exemple `Documents\AppToggle`), **jamais** dans Téléchargements ni dans un dossier partagé. Comme tout programme, l'exécutable charge au démarrage des bibliothèques Windows (DLL). Un fichier piégé déposé dans le même dossier pourrait être chargé à la place de l'original (attaque dite de « DLL planting »). AppToggle limite ce risque pour les bibliothèques qu'il charge lui-même (uniquement depuis `System32`), mais une partie est chargée par Windows avant le démarrage du programme.
-- L'exécutable n'est pas signé avec un certificat payant : Windows SmartScreen peut afficher un avertissement au premier lancement, et certains antivirus signalent à tort les programmes compilés avec AutoHotkey. Le code source complet est dans ce dépôt pour que chacun puisse vérifier.
+- `AppToggle.exe` est l'interpréteur officiel AutoHotkey, non modifié : son empreinte SHA-256 est publiée avec chaque release et doit être identique à celle de la version officielle. Tout ce qu'il exécute est du code lisible dans les fichiers `.ahk` du dossier.
 
-## Chaîne de compilation
+## Construction de la version à partager
 
-`build.ps1` vérifie l'empreinte SHA-256 du compilateur officiel Ahk2Exe avant de s'en servir, affiche la version et l'empreinte de l'interpréteur AutoHotkey utilisé, et publie avec chaque release le code source d'AutoHotkey correspondant (licence GPL v2).
+`build.ps1` télécharge la version officielle d'AutoHotkey depuis GitHub, vérifie l'empreinte SHA-256 du zip et de l'interpréteur avant de s'en servir, et publie avec chaque release le code source d'AutoHotkey correspondant (licence GPL v2). Aucun exécutable n'est compilé ni modifié : c'est ce qui permet à AppToggle de passer le Contrôle intelligent des applications de Windows 11, qui bloque les exécutables non signés inconnus.
 
 ---
 
@@ -44,8 +44,8 @@ Please **do not** open a public issue. Use the repository's **Security** tab, th
 
 - Download AppToggle **only** from this repository's [Releases](https://github.com/RobinsanKiritheepan/AppToggle/releases) page, and check the SHA-256 hash published with each version.
 - Keep `AppToggle.exe` in **your own folder** (for example `Documents\AppToggle`), **never** in Downloads or a shared folder. Like any program, the executable loads Windows libraries (DLLs) at startup. A malicious file dropped in the same folder could be loaded instead of the real one ("DLL planting"). AppToggle limits this risk for the libraries it loads itself (only from `System32`), but some are loaded by Windows before the program starts.
-- The executable isn't signed with a paid certificate: Windows SmartScreen may show a warning on first launch, and some antivirus tools wrongly flag programs compiled with AutoHotkey. The full source code is in this repository so anyone can check it.
+- `AppToggle.exe` is the official, unmodified AutoHotkey interpreter: its SHA-256 hash is published with each release and must match the official one. Everything it runs is readable code in the folder's `.ahk` files.
 
-## Build chain
+## Building the shareable version
 
-`build.ps1` checks the SHA-256 hash of the official Ahk2Exe compiler before using it, prints the version and hash of the AutoHotkey interpreter it uses, and each release ships the matching AutoHotkey source code (GPL v2 license).
+`build.ps1` downloads the official AutoHotkey release from GitHub, checks the SHA-256 hash of both the zip and the interpreter before using them, and each release ships the matching AutoHotkey source code (GPL v2 license). No executable is compiled or modified: that's what lets AppToggle pass Windows 11 Smart App Control, which blocks unknown unsigned executables.
