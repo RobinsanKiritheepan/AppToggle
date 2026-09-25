@@ -5,13 +5,13 @@ class Tray {
         this.DarkMenus()
         m := A_TrayMenu
         m.Delete()
-        m.Add("Ouvrir les réglages", (*) => Settings.Show())
+        m.Add(Tr("Ouvrir les réglages"), (*) => Settings.Show())
         m.Add()
-        m.Add("Actif", (*) => App.SetActive(!Config.active))
-        m.Add("Lancer avec Windows", (*) => (Startup.Set(!Startup.IsOn()), Tray.Update(), Settings.Refresh()))
+        m.Add(Tr("Actif"), (*) => App.SetActive(!Config.active))
+        m.Add(Tr("Lancer avec Windows"), (*) => (Startup.Set(!Startup.IsOn()), Tray.Update(), Settings.Refresh()))
         m.Add()
-        m.Add("Quitter AppToggle", (*) => ExitApp())
-        m.Default := "Ouvrir les réglages"
+        m.Add(Tr("Quitter AppToggle"), (*) => ExitApp())
+        m.Default := Tr("Ouvrir les réglages")
         m.ClickCount := 1
         this.Update()
         A_IconHidden := false
@@ -26,9 +26,10 @@ class Tray {
         n := 0
         for e in Config.entries
             n += e.enabled && e.error = ""
-        A_IconTip := on ? "AppToggle — actif (" n " raccourci" (n > 1 ? "s" : "") ")" : "AppToggle — en pause"
-        on ? A_TrayMenu.Check("Actif") : A_TrayMenu.Uncheck("Actif")
-        Startup.IsOn() ? A_TrayMenu.Check("Lancer avec Windows") : A_TrayMenu.Uncheck("Lancer avec Windows")
+        A_IconTip := !on ? Tr("AppToggle — en pause")
+            : n > 1 ? Tr("AppToggle — actif ({1} raccourcis)", n) : Tr("AppToggle — actif ({1} raccourci)", n)
+        on ? A_TrayMenu.Check(Tr("Actif")) : A_TrayMenu.Uncheck(Tr("Actif"))
+        Startup.IsOn() ? A_TrayMenu.Check(Tr("Lancer avec Windows")) : A_TrayMenu.Uncheck(Tr("Lancer avec Windows"))
     }
 
     static Notify(title, text, opts := "") => TrayTip(text, title, opts)
@@ -36,12 +37,12 @@ class Tray {
     ; Petit message au démarrage de Windows : rappelle quelles touches sont prêtes
     static Greet() {
         if !Config.active
-            return this.Notify("AppToggle est en pause", "Clique sur son icône près de l'horloge pour le réactiver.")
+            return this.Notify(Tr("AppToggle est en pause"), Tr("Clique sur son icône près de l'horloge pour le réactiver."))
         lines := "", count := 0
         for e in Config.entries
             if e.enabled && e.error = "" && count < 3
                 lines .= (count++ ? "`n" : "") Keys.Text(e.key) "  →  " e.name
-        this.Notify("AppToggle est prêt", lines != "" ? lines : "Ouvre les réglages pour ajouter un raccourci.")
+        this.Notify(Tr("AppToggle est prêt"), lines != "" ? lines : Tr("Ouvre les réglages pour ajouter un raccourci."))
     }
 
     ; Menus sombres quand Windows est en mode sombre (fonctions non documentées d'uxtheme, Windows 10 1903+)
@@ -65,21 +66,25 @@ class Startup {
     static Set(on) {
         try {
             if on
-                FileCreateShortcut(this.Target, this.Link, A_ScriptDir, this.Args, "AppToggle : ouvre et réduit tes applis avec une touche")
+                FileCreateShortcut(this.Target, this.Link, A_ScriptDir, this.Args, Tr("AppToggle : ouvre et réduit tes applis avec une touche"))
             else if this.IsOn()
                 FileDelete(this.Link)
         } catch
-            Tray.Notify("Impossible de modifier le démarrage automatique", "Vérifie les droits sur le dossier Démarrage.", "Iconx")
+            Tray.Notify(Tr("Impossible de modifier le démarrage automatique"), Tr("Vérifie les droits sur le dossier Démarrage."), "Iconx")
     }
 
-    ; Si l'exe a été déplacé, le raccourci de démarrage est remis à jour
+    ; Si l'exe a été déplacé, le raccourci de démarrage est remis à jour.
+    ; S'il pointe vers une autre copie d'AppToggle qui existe toujours, on n'y touche pas.
     static Repair() {
         if !this.IsOn()
             return
         try {
             FileGetShortcut(this.Link, &target, , &args)
-            if target != this.Target || args != this.Args
-                this.Set(true)
+            if target = this.Target && args = this.Args
+                return
+            if target != this.Target && FileExist(target)
+                return
+            this.Set(true)
         }
     }
 }

@@ -75,11 +75,11 @@ class UI {
         return g.Add("Text", Format("x{} y{} w{} h{} +0x4200 Background{} {}", x, y, w, h, Theme.Hex(bg), extra), str)
     }
 
-    static Button(g, text, x, y, w, style, bg, onClick, icon := "") {
-        b := g.Add("Picture", Format("x{} y{} w{} h32", x, y, w), "HBITMAP:" Widgets.Button(text, w, style, false, bg, icon))
+    static Button(g, text, x, y, w, style, bg, onClick, icon := "", iconAfter := false) {
+        b := g.Add("Picture", Format("x{} y{} w{} h32", x, y, w), "HBITMAP:" Widgets.Button(text, w, style, false, bg, icon, iconAfter))
         b.OnEvent("Click", onClick)
-        Hover.Add(b, () => b.Value := "HBITMAP:" Widgets.Button(text, w, style, true, bg, icon)
-            , () => b.Value := "HBITMAP:" Widgets.Button(text, w, style, false, bg, icon))
+        Hover.Add(b, () => b.Value := "HBITMAP:" Widgets.Button(text, w, style, true, bg, icon, iconAfter)
+            , () => b.Value := "HBITMAP:" Widgets.Button(text, w, style, false, bg, icon, iconAfter))
         return b
     }
 

@@ -5,3 +5,4 @@ tools/Ahk2Exe/
 # Fichiers créés par AppToggle à l'exécution
 config.ini
 erreurs.log
+errors.log

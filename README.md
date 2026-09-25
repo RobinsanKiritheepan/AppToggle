@@ -2,7 +2,7 @@
 
 Ouvre, ramène ou réduit une application avec une seule touche, par exemple la touche Copilot des claviers récents.
 
-*English: a lightweight Windows utility to open, bring back or minimize any app with a single key (for example the Copilot key). The interface is in French.*
+**English version: [README.en.md](README.en.md)**
 
 <p align="center">
   <img src="docs/apercu-sombre.png" width="49%" alt="AppToggle en thème sombre">
@@ -16,14 +16,15 @@ Ouvre, ramène ou réduit une application avec une seule touche, par exemple la 
 - **Capture de la touche au clavier** : on appuie sur la combinaison voulue. La touche Copilot est reconnue.
 - **Bascule intelligente** : l'appli est lancée si elle est fermée, restaurée si elle est réduite, ramenée au premier plan si elle est cachée derrière d'autres fenêtres, réduite si elle est déjà devant.
 - **État visible** : icône colorée près de l'horloge quand AppToggle est actif, grise quand il est en pause.
+- **Français et anglais** : la langue suit celle de Windows, ou se choisit dans les options.
 - **Suit le thème de Windows** (sombre ou clair) et sa couleur d'accent.
-- **Léger** : un seul exécutable d'environ 1,3 Mo, moins de 2 Mo de mémoire active en arrière-plan, aucune activité du processeur tant qu'on n'appuie pas sur une touche.
+- **Léger** : un seul exécutable d'environ 1,4 Mo, moins de 2 Mo de mémoire active en arrière-plan, aucune activité du processeur tant qu'on n'appuie pas sur une touche.
 - **Portable et hors ligne** : la configuration est enregistrée dans `config.ini`, à côté de l'exécutable. Rien dans le registre, aucune donnée collectée, aucune connexion Internet.
 
 ## Installation
 
 1. Télécharger `AppToggle-x.y.z.zip` depuis la [dernière version publiée](https://github.com/RobinsanKiritheepan/AppToggle/releases/latest).
-2. Extraire le contenu dans un dossier où il restera (par exemple `Documents\AppToggle`), pas dans Téléchargements.
+2. Extraire le contenu dans un dossier à toi où il restera (par exemple `Documents\AppToggle`), pas dans Téléchargements.
 3. Double-cliquer sur `AppToggle.exe` : la fenêtre de réglages s'ouvre.
 
 ### Avertissement de Windows au premier lancement
@@ -48,6 +49,10 @@ Activer **Lancer avec Windows** pour qu'AppToggle démarre avec le PC. Un clic s
 
 Pour ne pas empêcher d'écrire normalement, une combinaison doit contenir Ctrl, Alt ou Win (sauf les touches spéciales comme F13 à F24 ou les touches multimédia).
 
+## Sécurité et vie privée
+
+AppToggle ne se connecte jamais à Internet, ne collecte aucune donnée et n'a pas besoin des droits administrateur. Pour reconnaître certaines touches (dont la touche Copilot), il utilise un crochet clavier de Windows, mais n'enregistre ni n'envoie aucune frappe. Tous les détails, les bonnes pratiques et la façon de signaler une faille sont dans [SECURITY.md](SECURITY.md).
+
 ## Compiler depuis les sources
 
 Prérequis : [AutoHotkey v2](https://www.autohotkey.com) installé.
@@ -56,7 +61,7 @@ Prérequis : [AutoHotkey v2](https://www.autohotkey.com) installé.
 powershell -ExecutionPolicy Bypass -File build.ps1
 ```
 
-Le script télécharge une seule fois le compilateur officiel Ahk2Exe dans `tools\Ahk2Exe` (sans droits administrateur), compile `src\AppToggle.ahk` en `dist\AppToggle.exe`, puis prépare dans `dist` les fichiers d'une release : le zip à publier, son empreinte SHA-256 et le code source d'AutoHotkey correspondant. Pour tester sans compiler, il suffit de double-cliquer sur `src\AppToggle.ahk`.
+Le script télécharge une seule fois le compilateur officiel Ahk2Exe dans `tools\Ahk2Exe` (sans droits administrateur) et vérifie son empreinte. Il compile ensuite `src\AppToggle.ahk` en `dist\AppToggle.exe`, puis prépare dans `dist` les fichiers d'une release : le zip à publier, son empreinte SHA-256 et le code source d'AutoHotkey correspondant. Pour tester sans compiler, il suffit de double-cliquer sur `src\AppToggle.ahk`.
 
 ## Structure du projet
 
@@ -66,6 +71,7 @@ Le script télécharge une seule fois le compilateur officiel Ahk2Exe dans `tool
 | `src/lib/Engine.ahk` | Relie les touches aux applis ; ouvrir, ramener ou réduire |
 | `src/lib/Config.ahk` | Lecture et écriture de `config.ini` |
 | `src/lib/Keys.ahk` | Noms des touches et capture d'une combinaison |
+| `src/lib/Lang.ahk` | Traductions français / anglais |
 | `src/lib/Tray.ahk` | Icône près de l'horloge, menu, lancement avec Windows |
 | `src/lib/Theme.ahk` | Couleurs, polices, mode sombre ou clair |
 | `src/lib/Draw.ahk` | Dessin des éléments avec GDI+ : cartes, interrupteurs, boutons, touches |
@@ -81,6 +87,7 @@ Le fichier est créé au premier lancement. Il se modifie depuis la fenêtre de 
 [General]
 Actif=1
 Notification=1
+Langue=auto
 
 [Raccourci1]
 Nom=Claude
@@ -92,6 +99,7 @@ Titre=
 Actif=1
 ```
 
+- `Langue` : `auto` (langue de Windows), `fr` ou `en`.
 - `Touche` suit la syntaxe AutoHotkey : `^` Ctrl, `!` Alt, `+` Maj, `#` Win. La touche Copilot correspond à `+#F23`.
 - `Type=store` : `Cible` est l'identifiant de l'appli du Microsoft Store (`Get-StartApps` dans PowerShell le donne). `Type=exe` : `Cible` est le chemin complet du programme.
 - `Processus` sert à retrouver la fenêtre de l'appli ; `Titre` (facultatif) filtre sur un morceau du titre.

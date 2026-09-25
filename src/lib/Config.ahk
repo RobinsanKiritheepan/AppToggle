@@ -7,12 +7,12 @@ class Entry {
 
     ; Ce qui identifie l'appli pour Windows : un id du Store ou le chemin d'un .exe
     ParsingName => this.type = "store" ? "shell:AppsFolder\" this.target : this.target
-    TypeLabel => this.type = "store" ? "Microsoft Store" : "Programme"
+    TypeLabel => this.type = "store" ? "Microsoft Store" : Tr("Programme")
 }
 
 class Config {
     static path := A_ScriptDir "\config.ini"
-    static entries := [], active := true, notify := true, hintShown := false
+    static entries := [], active := true, notify := true, hintShown := false, lang := "auto"
 
     static Load() {
         this.entries := []
@@ -23,6 +23,9 @@ class Config {
         this.active := IniRead(this.path, "General", "Actif", 1) = 1
         this.notify := IniRead(this.path, "General", "Notification", 1) = 1
         this.hintShown := IniRead(this.path, "General", "AstuceVue", 0) = 1
+        this.lang := IniRead(this.path, "General", "Langue", "auto")
+        if !(this.lang ~= "^(auto|fr|en)$")
+            this.lang := "auto"
         for sec in StrSplit(IniRead(this.path), "`n") {
             if !(sec ~= "i)^Raccourci\d+$")
                 continue
@@ -43,9 +46,9 @@ class Config {
     }
 
     static Save() {
-        t := "; Configuration d'AppToggle. Le plus simple est de la modifier depuis la fenêtre de réglages.`r`n"
+        t := "; " Tr("Configuration d'AppToggle. Le plus simple est de la modifier depuis la fenêtre de réglages.") "`r`n"
         t .= "[General]`r`nActif=" (this.active ? 1 : 0) "`r`nNotification=" (this.notify ? 1 : 0)
-        t .= "`r`nAstuceVue=" (this.hintShown ? 1 : 0) "`r`n"
+        t .= "`r`nAstuceVue=" (this.hintShown ? 1 : 0) "`r`nLangue=" this.lang "`r`n"
         for i, e in this.entries {
             t .= "`r`n[Raccourci" i "]`r`nNom=" e.name "`r`nTouche=" e.key "`r`nType=" e.type
             t .= "`r`nCible=" e.target "`r`nProcessus=" e.process "`r`nTitre=" e.title
@@ -56,7 +59,7 @@ class Config {
             f.Write(t)
             f.Close()
         } catch {
-            Tray.Notify("Impossible d'enregistrer les réglages", "Le dossier d'AppToggle est peut-être en lecture seule.", "Iconx")
+            Tray.Notify(Tr("Impossible d'enregistrer les réglages"), Tr("Le dossier d'AppToggle est peut-être en lecture seule."), "Iconx")
         }
     }
 

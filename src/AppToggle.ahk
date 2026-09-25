@@ -4,19 +4,20 @@
 #SingleInstance Off
 #NoTrayIcon
 Persistent()
-KeyHistory(0)
+KeyHistory(0)       ; aucune touche n'est gardée en mémoire
 ListLines(false)
 
 ;@Ahk2Exe-SetName AppToggle
 ;@Ahk2Exe-SetProductName AppToggle
 ;@Ahk2Exe-SetDescription AppToggle - ouvre et réduit tes applis avec une touche
-;@Ahk2Exe-SetVersion 2.0.0
+;@Ahk2Exe-SetVersion 2.1.0
 ;@Ahk2Exe-SetCompanyName Kiritheepan Robinsan
 ;@Ahk2Exe-SetCopyright Copyright (c) 2026 Kiritheepan Robinsan - Licence MIT
 ;@Ahk2Exe-SetOrigFilename AppToggle.exe
 ;@Ahk2Exe-SetMainIcon ..\assets\icon.ico
 ;@Ahk2Exe-AddResource ..\assets\icon-off.ico, 250
 
+#Include %A_ScriptDir%\lib\Lang.ahk
 #Include %A_ScriptDir%\lib\Theme.ahk
 #Include %A_ScriptDir%\lib\Draw.ahk
 #Include %A_ScriptDir%\lib\Config.ahk
@@ -31,12 +32,16 @@ ListLines(false)
 App.Main()
 
 class App {
-    static Version := "2.0.0"
+    static Version := "2.1.0"
     static RepoUrl := "https://github.com/RobinsanKiritheepan/AppToggle"
     static WM_SHOW := 0x8001        ; message privé : « affiche tes réglages »
     static mutex := 0
 
     static Main() {
+        ; Sécurité : les DLL chargées ensuite viennent uniquement de System32, jamais du dossier de l'exe
+        ; (évite qu'une fausse DLL posée à côté soit chargée à la place de celle de Windows)
+        DllCall("SetDefaultDllDirectories", "uint", 0x800)     ; LOAD_LIBRARY_SEARCH_SYSTEM32
+
         atStartup := false
         for arg in A_Args
             if arg = "/startup"
@@ -57,6 +62,7 @@ class App {
         Theme.Init()
         Hover.Init()
         Config.Load()
+        Lang.Init()
         Engine.Apply()
         Tray.Init()
         Startup.Repair()
@@ -110,11 +116,11 @@ class App {
         }
     }
 
-    ; Erreur imprévue : on la note dans erreurs.log (à côté de l'exe) au lieu d'afficher une fenêtre technique
+    ; Erreur imprévue : on la note dans errors.log (à côté de l'exe) au lieu d'afficher une fenêtre technique
     static OnFail(err, mode) {
         try FileAppend(Format("[{}] {} {} (ligne {}, {})`r`n", FormatTime(, "yyyy-MM-dd HH:mm:ss"), err.Message, err.Extra, err.Line, err.What)
-            , A_ScriptDir "\erreurs.log", "UTF-8")
-        try Tray.Notify("AppToggle a rencontré un problème", "Les détails sont dans erreurs.log, à côté de l'application.", "Iconx")
+            , A_ScriptDir "\errors.log", "UTF-8")
+        try Tray.Notify(Tr("AppToggle a rencontré un problème"), Tr("Les détails sont dans errors.log, à côté de l'application."), "Iconx")
         return 1
     }
 

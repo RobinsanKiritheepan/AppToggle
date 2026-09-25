@@ -13,15 +13,27 @@ if (-not $ahkDir) { $ahkDir = Join-Path $env:ProgramFiles 'AutoHotkey' }
 $base = Join-Path $ahkDir 'v2\AutoHotkey64.exe'
 if (-not (Test-Path $base)) { throw "AutoHotkey v2 est introuvable. Installe-le depuis https://www.autohotkey.com puis relance." }
 
-# 2. Le compilateur Ahk2Exe (outil officiel), téléchargé une seule fois dans tools\Ahk2Exe, sans droits admin
+# 2. Le compilateur Ahk2Exe (outil officiel), téléchargé une seule fois dans tools\Ahk2Exe, sans droits admin.
+#    Sécurité : on vérifie l'empreinte SHA-256 du téléchargement et de l'outil avant de s'en servir.
 $ahk2exe = Join-Path $root 'tools\Ahk2Exe\Ahk2Exe.exe'
+$ahk2exeZipSha = 'C29B8C3A5124850D79FC9E66E2CA79677C377D7F31631AD3022BA159C5D9E3BE'   # Ahk2Exe1.1.37.02a2.zip
+$ahk2exeSha = 'E54A599B19BAA5C1688849BBAE7A9CF049EEFCCD4F704C67941B40DA13A625B2'      # Ahk2Exe.exe qu'il contient
 if (-not (Test-Path $ahk2exe)) {
     Write-Host 'Téléchargement du compilateur Ahk2Exe...'
     $zip = Join-Path $env:TEMP 'Ahk2Exe.zip'
     Invoke-WebRequest 'https://github.com/AutoHotkey/Ahk2Exe/releases/download/Ahk2Exe1.1.37.02a2/Ahk2Exe1.1.37.02a2.zip' -OutFile $zip
+    if ((Get-FileHash $zip -Algorithm SHA256).Hash -ne $ahk2exeZipSha) {
+        Remove-Item $zip
+        throw "Le fichier Ahk2Exe téléchargé n'a pas l'empreinte attendue : compilation annulée par sécurité."
+    }
     Expand-Archive $zip (Split-Path $ahk2exe) -Force
     Remove-Item $zip
 }
+if ((Get-FileHash $ahk2exe -Algorithm SHA256).Hash -ne $ahk2exeSha) {
+    throw "tools\Ahk2Exe\Ahk2Exe.exe a été modifié (empreinte différente). Supprime le dossier tools\Ahk2Exe puis relance."
+}
+$baseInfo = Get-Item $base
+Write-Host "Base AutoHotkey : $($baseInfo.VersionInfo.ProductVersion) (SHA-256 $((Get-FileHash $base -Algorithm SHA256).Hash))"
 
 # 3. Si AppToggle tourne depuis dist, on l'arrête le temps de remplacer l'exe (sinon le fichier est verrouillé)
 $running = Get-Process AppToggle -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq $exe }

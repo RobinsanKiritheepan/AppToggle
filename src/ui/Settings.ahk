@@ -27,7 +27,7 @@ class Settings {
         ySec1 := yStatus + hStatus + 22
         yList := ySec1 + 36, hList := n ? n * this.RowH : 100
         ySec2 := yList + hList + 22
-        yOpt := ySec2 + 36, hOptRow := 60, hOpt := 2 * hOptRow
+        yOpt := ySec2 + 36, hOptRow := 60, hOpt := 3 * hOptRow
         yFoot := yOpt + hOpt + 16
         H := yFoot + 20 + 16
 
@@ -38,7 +38,8 @@ class Settings {
         cv.RoundRect(M, yOpt, cw, hOpt, 8, T.card, T.cardStroke)
         Loop n - 1
             cv.Rect(M + 1, yList + A_Index * this.RowH, cw - 2, 1, T.divider)
-        cv.Rect(M + 1, yOpt + hOptRow, cw - 2, 1, T.divider)
+        Loop 2
+            cv.Rect(M + 1, yOpt + A_Index * hOptRow, cw - 2, 1, T.divider)
 
         g := UI.NewWindow("AppToggle")
         g.OnEvent("Close", (*) => this.Close())
@@ -48,7 +49,7 @@ class Settings {
 
         ; --- en-tête ---
         UI.Text(g, "AppToggle", M, 14, 400, 34, T.text, T.bg, 18, 600, , T.fontTitle)
-        UI.Text(g, "Ouvre et réduis tes applis avec une seule touche", M + 1, 48, 480, 20, T.text2, T.bg, 10)
+        UI.Text(g, Tr("Ouvre et réduis tes applis avec une seule touche"), M + 1, 48, 480, 20, T.text2, T.bg, 10)
 
         ; --- état général ---
         this.ctl["logo"] := g.Add("Picture", Format("x{} y{} w40 h40", M + 18, yStatus + 18), "HBITMAP:" Widgets.Logo(40, Config.active, T.card))
@@ -57,25 +58,26 @@ class Settings {
         this.ctl["master"] := UI.Switch(g, W - M - 18 - 40, yStatus + 28, T.card, () => Config.active, (v) => App.SetActive(v))
 
         ; --- raccourcis ---
-        UI.Text(g, "Raccourcis", M + 2, ySec1, 200, 28, T.text, T.bg, 10, 600)
-        UI.Button(g, "Ajouter", W - M - 112, ySec1 - 2, 112, "secondary", T.bg, (*) => Editor.Open(), Chr(0xE710))
+        UI.Text(g, Tr("Raccourcis"), M + 2, ySec1, 200, 28, T.text, T.bg, 10, 600)
+        UI.Button(g, Tr("Ajouter"), W - M - 112, ySec1 - 2, 112, "secondary", T.bg, (*) => Editor.Open(), Chr(0xE710))
         for i, e in Config.entries
             this.AddRow(g, e, M, yList + (i - 1) * this.RowH, cw)
         if !n {
-            UI.Text(g, "Aucun raccourci pour l'instant", M + 1, yList + 24, cw - 2, 24, T.text, T.card, 10, 600, "Center")
-            UI.Text(g, "Ouvre l'appli que tu veux, puis clique sur « Ajouter »", M + 1, yList + 50, cw - 2, 22, T.text3, T.card, 9, 400, "Center")
+            UI.Text(g, Tr("Aucun raccourci pour l'instant"), M + 1, yList + 24, cw - 2, 24, T.text, T.card, 10, 600, "Center")
+            UI.Text(g, Tr("Ouvre l'appli que tu veux, puis clique sur « Ajouter »"), M + 1, yList + 50, cw - 2, 22, T.text3, T.card, 9, 400, "Center")
         }
 
         ; --- options ---
-        UI.Text(g, "Options", M + 2, ySec2, 200, 28, T.text, T.bg, 10, 600)
-        this.AddOption(g, yOpt, "startup", "Lancer avec Windows", "AppToggle démarre tout seul quand tu allumes le PC"
+        UI.Text(g, Tr("Options"), M + 2, ySec2, 200, 28, T.text, T.bg, 10, 600)
+        this.AddOption(g, yOpt, "startup", Tr("Lancer avec Windows"), Tr("AppToggle démarre tout seul quand tu allumes le PC")
             , () => Startup.IsOn(), (v) => (Startup.Set(v), Tray.Update()))
-        this.AddOption(g, yOpt + hOptRow, "notify", "Notification au démarrage", "Un petit message confirme qu'AppToggle est prêt"
+        this.AddOption(g, yOpt + hOptRow, "notify", Tr("Notification au démarrage"), Tr("Un petit message confirme qu'AppToggle est prêt")
             , () => Config.notify, (v) => (Config.notify := v, Config.Save()))
+        this.AddLanguage(g, yOpt + 2 * hOptRow)
 
         ; --- pied de page ---
-        UI.Text(g, "Version " App.Version " · Logiciel libre, licence MIT", M + 2, yFoot, 300, 20, T.text3, T.bg, 9)
-        UI.Link(g, "Code source sur GitHub", W - M - 200, yFoot - 1, 198, T.bg, (*) => Run(App.RepoUrl), "Right")
+        UI.Text(g, Tr("Version {1} · Logiciel libre, licence MIT", App.Version), M + 2, yFoot, 300, 20, T.text3, T.bg, 9)
+        UI.Link(g, Tr("Code source sur GitHub"), W - M - 200, yFoot - 1, 198, T.bg, (*) => Run(App.RepoUrl), "Right")
 
         ; --- affichage : si l'écran est trop petit, la fenêtre défile ---
         MonitorGetWorkArea(old ? UI.MonitorOf(old.Hwnd) : MonitorGetPrimary(), , &top, , &bottom)
@@ -130,6 +132,36 @@ class Settings {
         this.ctl[key] := UI.Switch(g, this.W - M - 18 - 40, y + 20, T.card, get, set)
     }
 
+    ; Langue : un bouton qui ouvre un petit menu Automatique / Français / English
+    static AddLanguage(g, y) {
+        T := Theme, M := this.M
+        UI.Text(g, Tr("Langue"), M + 18, y + 9, 300, 22, T.text, T.card, 10)
+        UI.Text(g, Tr("« Automatique » suit la langue de Windows"), M + 18, y + 31, 320, 18, T.text3, T.card, 9)
+        label := Config.lang = "fr" ? "Français" : Config.lang = "en" ? "English" : Tr("Automatique")
+        UI.Button(g, label, this.W - M - 18 - 150, y + 14, 150, "secondary", T.card, (*) => this.LanguageMenu(), Chr(0xE70D), true)
+    }
+
+    static LanguageMenu() {
+        m := Menu()
+        for opt in [["auto", Tr("Automatique (langue de Windows)")], ["fr", "Français"], ["en", "English"]] {
+            m.Add(opt[2], ObjBindMethod(this, "SetLanguage", opt[1]))
+            if Config.lang = opt[1]
+                m.Check(opt[2])
+        }
+        m.Show()
+    }
+
+    static SetLanguage(code, *) {
+        if code = Config.lang
+            return
+        Config.lang := code
+        Config.Save()
+        Lang.Init()
+        Engine.Apply()          ; les messages d'erreur changent de langue
+        Tray.Init()
+        UI.Later(() => this.Rebuild())
+    }
+
     ; Met à jour l'affichage sans reconstruire la fenêtre
     static Refresh() {
         if !this.gui
@@ -144,16 +176,16 @@ class Settings {
                 issues++
         }
         this.ctl["logo"].Value := "HBITMAP:" Widgets.Logo(40, on, T.card)
-        this.ctl["stTitle"].Value := on ? "AppToggle est actif" : "AppToggle est en pause"
-        this.ctl["stSub"].Value := !on ? "Tes touches fonctionnent normalement, rien n'est intercepté"
-            : issues ? issues " raccourci" (issues > 1 ? "s" : "") " à vérifier"
-            : ready ? ready " raccourci" (ready > 1 ? "s" : "") " prêt" (ready > 1 ? "s" : "")
-            : "Ajoute un raccourci pour commencer"
+        this.ctl["stTitle"].Value := on ? Tr("AppToggle est actif") : Tr("AppToggle est en pause")
+        this.ctl["stSub"].Value := !on ? Tr("Tes touches fonctionnent normalement, rien n'est intercepté")
+            : issues ? Tr(issues > 1 ? "{1} raccourcis à vérifier" : "{1} raccourci à vérifier", issues)
+            : ready ? Tr(ready > 1 ? "{1} raccourcis prêts" : "{1} raccourci prêt", ready)
+            : Tr("Ajoute un raccourci pour commencer")
         for e, r in this.rows {
             bad := on && e.enabled && e.error != ""
             r.name.SetFont("c" T.Hex(e.enabled ? T.text : T.text3))
             r.sub.SetFont("c" T.Hex(bad ? T.danger : T.text3))
-            r.sub.Value := bad ? e.error : (e.enabled ? "" : "Désactivé · ") e.process " · " e.TypeLabel
+            r.sub.Value := bad ? e.error : (e.enabled ? "" : Tr("Désactivé") " · ") e.process " · " e.TypeLabel
             r.name.Redraw()
             UI.RedrawSwitch(r.sw)
         }
@@ -180,7 +212,7 @@ class Settings {
         if !Config.hintShown {
             Config.hintShown := true
             Config.Save()
-            Tray.Notify("AppToggle continue en arrière-plan", "Tes raccourcis restent actifs. Clique sur l'icône près de l'horloge pour revenir ici.")
+            Tray.Notify(Tr("AppToggle continue en arrière-plan"), Tr("Tes raccourcis restent actifs. Clique sur l'icône près de l'horloge pour revenir ici."))
         }
         App.TrimMemory()
     }

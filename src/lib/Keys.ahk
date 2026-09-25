@@ -25,9 +25,9 @@ class Keys {
         if hk = ""
             return []
         if hk = this.Copilot
-            return ["Touche Copilot"]
+            return [Tr("Touche Copilot")]
         p := this.Split(hk), out := []
-        for pair in [["#", "Win"], ["^", "Ctrl"], ["!", "Alt"], ["+", "Maj"]]
+        for pair in [["#", "Win"], ["^", "Ctrl"], ["!", "Alt"], ["+", Tr("Maj")]]
             if InStr(p.mods, pair[1])
                 out.Push(pair[2])
         out.Push(this.KeyLabel(p.key))
@@ -38,30 +38,43 @@ class Keys {
         s := ""
         for i, lab in this.Labels(hk)
             s .= (i > 1 ? " + " : "") lab
-        return s = "" ? "Aucune touche" : s
+        return s = "" ? Tr("Aucune touche") : s
     }
 
     static KeyLabel(key) {
-        static names := Keys.FrenchNames()
+        names := this.Names()
         if names.Has(key)
             return names[key]
         if key ~= "i)^vk[0-9a-f]{2}$"
             return (n := GetKeyName(key)) != "" ? StrUpper(n) : key
         if key ~= "i)^Numpad"
-            return "Pavé " SubStr(key, 7)
+            return Tr("Pavé {1}", SubStr(key, 7))
         return StrLen(key) = 1 ? StrUpper(key) : key
     }
 
-    static FrenchNames() {
+    ; Noms des touches spéciales dans la langue de l'interface
+    static Names() {
+        static cache := Map()
+        if cache.Has(Lang.code)
+            return cache[Lang.code]
         m := Map(), m.CaseSense := "Off"
-        m.Set("Space", "Espace", "Enter", "Entrée", "Tab", "Tab", "Backspace", "Retour", "Delete", "Suppr"
-            , "Insert", "Inser", "Home", "Début", "End", "Fin", "PgUp", "Page préc.", "PgDn", "Page suiv."
-            , "Up", "Haut", "Down", "Bas", "Left", "Gauche", "Right", "Droite", "PrintScreen", "Impr. écran"
-            , "Pause", "Pause", "ScrollLock", "Arrêt défil.", "CapsLock", "Verr. Maj", "NumLock", "Verr. Num"
-            , "AppsKey", "Menu", "Escape", "Échap", "Media_Play_Pause", "Lecture", "Media_Next", "Piste suiv."
-            , "Media_Prev", "Piste préc.", "Media_Stop", "Stop", "Volume_Mute", "Muet", "Volume_Up", "Volume +"
-            , "Volume_Down", "Volume -")
-        return m
+        if Lang.code = "en"
+            m.Set("Space", "Space", "Enter", "Enter", "Tab", "Tab", "Backspace", "Backspace", "Delete", "Del"
+                , "Insert", "Ins", "Home", "Home", "End", "End", "PgUp", "Page Up", "PgDn", "Page Down"
+                , "Up", "Up", "Down", "Down", "Left", "Left", "Right", "Right", "PrintScreen", "Print Screen"
+                , "Pause", "Pause", "ScrollLock", "Scroll Lock", "CapsLock", "Caps Lock", "NumLock", "Num Lock"
+                , "AppsKey", "Menu", "Escape", "Esc", "Media_Play_Pause", "Play/Pause", "Media_Next", "Next track"
+                , "Media_Prev", "Previous track", "Media_Stop", "Stop", "Volume_Mute", "Mute", "Volume_Up", "Volume +"
+                , "Volume_Down", "Volume -")
+        else
+            m.Set("Space", "Espace", "Enter", "Entrée", "Tab", "Tab", "Backspace", "Retour", "Delete", "Suppr"
+                , "Insert", "Inser", "Home", "Début", "End", "Fin", "PgUp", "Page préc.", "PgDn", "Page suiv."
+                , "Up", "Haut", "Down", "Bas", "Left", "Gauche", "Right", "Droite", "PrintScreen", "Impr. écran"
+                , "Pause", "Pause", "ScrollLock", "Arrêt défil.", "CapsLock", "Verr. Maj", "NumLock", "Verr. Num"
+                , "AppsKey", "Menu", "Escape", "Échap", "Media_Play_Pause", "Lecture", "Media_Next", "Piste suiv."
+                , "Media_Prev", "Piste préc.", "Media_Stop", "Stop", "Volume_Mute", "Muet", "Volume_Up", "Volume +"
+                , "Volume_Down", "Volume -")
+        return cache[Lang.code] := m
     }
 
     ; Nom AutoHotkey d'une touche pressée (lettres et touches spéciales par leur nom, le reste par code « vkXX »)
@@ -81,15 +94,16 @@ class Keys {
         if alone
             return ""
         if p.mods = ""
-            return "Ajoute Ctrl, Alt ou Win : seule, cette touche t'empêcherait d'écrire normalement."
+            return Tr("Ajoute Ctrl, Alt ou Win : seule, cette touche t'empêcherait d'écrire normalement.")
         if p.mods = "+"
-            return "Maj seule ne suffit pas (Maj + lettre sert à écrire en majuscule). Ajoute Ctrl, Alt ou Win."
+            return Tr("Maj seule ne suffit pas (Maj + lettre sert à écrire en majuscule). Ajoute Ctrl, Alt ou Win.")
         return ""
     }
 }
 
 ; Écoute le clavier jusqu'à ce qu'une combinaison complète soit pressée puis relâchée.
 ; Pendant la capture, les touches sont bloquées (rien n'arrive aux autres applis) et les raccourcis sont en pause.
+; Rien n'est enregistré : seule la combinaison choisie est gardée.
 class KeyCapture {
     static ih := "", done := "", down := Map(), result := ""
     static Mods := [["^", [0x11, 0xA2, 0xA3]], ["!", [0x12, 0xA4, 0xA5]], ["+", [0x10, 0xA0, 0xA1]], ["#", [0x5B, 0x5C]]]

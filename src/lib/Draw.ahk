@@ -170,7 +170,8 @@ class Widgets {
     }
 
     ; style : primary (couleur d'accent), secondary, danger (rouge plein), subtle-danger (texte rouge)
-    static Button(text, w, style, hover, bg, icon := "") {
+    ; iconAfter : l'icône est placée après le texte (ex. une flèche de menu)
+    static Button(text, w, style, hover, bg, icon := "", iconAfter := false) {
         T := Theme, h := 32, c := Canvas(w, h, bg)
         switch style {
             case "primary":
@@ -189,6 +190,11 @@ class Widgets {
         }
         if icon = "" {
             c.Text(text, 0, 0, w, h, fg, 14)
+        } else if iconAfter {
+            tw := Gdip.Measure(text, 14), iw := 12, gap := 8
+            x0 := (w - (tw + gap + iw)) / 2
+            c.Text(text, x0, 0, tw + 2, h, fg, 14, false, "", 0)
+            c.Text(icon, x0 + tw + gap, 0, iw, h, fg, 10, false, T.icons)
         } else {
             tw := Gdip.Measure(text, 14), iw := 16, gap := 8
             x0 := (w - (iw + gap + tw)) / 2

@@ -18,18 +18,18 @@ class Engine {
             if !e.enabled
                 continue
             if e.key = "" {
-                e.error := "Aucune touche choisie"
+                e.error := Tr("Aucune touche choisie")
                 continue
             }
             if this.bound.Has(e.key) {
-                e.error := "Touche déjà utilisée par « " this.bound[e.key].name " »"
+                e.error := Tr("Touche déjà utilisée par « {1} »", this.bound[e.key].name)
                 continue
             }
             try {
                 Hotkey(e.key, ObjBindMethod(this, "Toggle", e), "On")
                 this.bound[e.key] := e
             } catch
-                e.error := "Touche non reconnue par Windows"
+                e.error := Tr("Touche non reconnue par Windows")
         }
     }
 
@@ -76,7 +76,7 @@ class Engine {
                 Run('"' e.target '"', dir)
             }
         } catch
-            Tray.Notify("Impossible d'ouvrir « " e.name " »", "Vérifie cette appli dans les réglages d'AppToggle.", "Iconx")
+            Tray.Notify(Tr("Impossible d'ouvrir « {1} »", e.name), Tr("Vérifie cette appli dans les réglages d'AppToggle."), "Iconx")
     }
 
     ; La fenêtre principale de l'appli (la plus haute à l'écran), ou 0 si elle n'est pas ouverte

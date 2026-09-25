@@ -15,12 +15,12 @@ class Picker {
 
         cv := Canvas(W, H, T.bg)
         cv.RoundRect(M, yList, cw, hList, 8, T.card, T.cardStroke)
-        g := UI.NewWindow("Choisir une application", "-MinimizeBox +Owner" Editor.gui.Hwnd)
+        g := UI.NewWindow(Tr("Choisir une application"), "-MinimizeBox +Owner" Editor.gui.Hwnd)
         g.OnEvent("Close", (*) => this.Close())
         g.OnEvent("Escape", (*) => this.Close())
         UI.Background(g, cv, W, H)
-        UI.Text(g, "Choisir une appli ouverte", M, 14, cw, 32, T.text, T.bg, 14, 600, , T.fontTitle)
-        UI.Text(g, "Ton appli n'est pas dans la liste ? Ouvre-la, puis clique sur Actualiser.", M + 1, 46, cw, 20, T.text2, T.bg, 9)
+        UI.Text(g, Tr("Choisir une appli ouverte"), M, 14, cw, 32, T.text, T.bg, 14, 600, , T.fontTitle)
+        UI.Text(g, Tr("Ton appli n'est pas dans la liste ? Ouvre-la, puis clique sur Actualiser."), M + 1, 46, cw, 20, T.text2, T.bg, 9)
 
         g.SetFont(Format("norm s10 c{}", T.Hex(T.text)), T.font)
         lv := g.Add("ListView", Format("x{} y{} w{} h{} -Hdr -Multi -E0x200 +LV0x10000 Background{} c{}"
@@ -30,9 +30,9 @@ class Picker {
         lv.OnEvent("DoubleClick", (ctrl, row) => this.Pick(row))
         this.lv := lv
 
-        UI.Button(g, "Actualiser", M, yBtn, 124, "secondary", T.bg, (*) => this.Fill(), Chr(0xE72C))
-        UI.Button(g, "Choisir", W - M - 120, yBtn, 120, "primary", T.bg, (*) => this.Pick(this.lv.GetNext()))
-        UI.Button(g, "Annuler", W - M - 120 - 8 - 110, yBtn, 110, "secondary", T.bg, (*) => this.Close())
+        UI.Button(g, Tr("Actualiser"), M, yBtn, 124, "secondary", T.bg, (*) => this.Fill(), Chr(0xE72C))
+        UI.Button(g, Tr("Choisir"), W - M - 120, yBtn, 120, "primary", T.bg, (*) => this.Pick(this.lv.GetNext()))
+        UI.Button(g, Tr("Annuler"), W - M - 120 - 8 - 110, yBtn, 110, "secondary", T.bg, (*) => this.Close())
 
         g.Show(Format("Hide w{} h{}", W, H))
         UI.WindowTheme(g)
